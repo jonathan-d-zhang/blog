@@ -42,26 +42,35 @@ async fn file_count() -> std::io::Result<u32> {
     }
 }
 
-#[post("/submit", data = "<form>")]
-async fn submit(form: Form<Article<'_>>) -> &'static str {
-    let article = form.into_inner();
-
+async fn persist(article: Article<'_>) -> std::io::Result<()> {
     match file_count().await {
         Ok(n) => {
             let mut file = fs::OpenOptions::new()
                 .write(true)
                 .create(true)
                 .open(Path::new("articles").join(format!("{}-{}.txt", n, article.title)))
-                .await
-                .unwrap();
+                .await?;
 
-            file.write(article.body.as_bytes()).await.unwrap();
+            file.write(article.body.as_bytes()).await?;
+
+            Ok(())
         }
 
-        Err(_) => panic!("Error getting file count"),
+        Err(e) => Err(e),
     }
+}
 
-    "yo"
+#[post("/submit", data = "<form>")]
+async fn submit(form: Form<Article<'_>>) -> Option<NamedFile> {
+    let article = form.into_inner();
+    let response = persist(article).await;
+
+    NamedFile::open(Path::new("static").join(match response {
+        Ok(_) => "success.html",
+        Err(_) => "error.html",
+    }))
+    .await
+    .ok()
 }
 
 #[launch]
