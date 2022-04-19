@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 rocket = "0.5.0-rc.1"
+tokio-stream = { version = "0.1.8", features = ["fs"] }
