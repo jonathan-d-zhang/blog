@@ -1,8 +1,8 @@
-#[macro_use] extern crate rocket;
-use std::path::{Path};
-use rocket::fs::{NamedFile};
+#[macro_use]
+extern crate rocket;
 use rocket::form::Form;
-
+use rocket::fs::NamedFile;
+use std::path::Path;
 
 #[get("/")]
 async fn index() -> Option<NamedFile> {
@@ -17,7 +17,9 @@ struct Article<'r> {
 
 #[get("/form")]
 async fn form() -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/upload_form.html")).await.ok()
+    NamedFile::open(Path::new("static/upload_form.html"))
+        .await
+        .ok()
 }
 
 #[post("/submit", data = "<form>")]
@@ -28,6 +30,5 @@ fn submit(form: Form<Article<'_>>) -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build()
-        .mount("/", routes![index, form, submit])
+    rocket::build().mount("/", routes![index, form, submit])
 }
