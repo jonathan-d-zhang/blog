@@ -15,6 +15,11 @@ async fn index() -> Option<NamedFile> {
 fn rocket() -> _ {
     rocket::build().mount(
         "/",
-        routes![index, submit_article::form, submit_article::submit],
+        routes![
+            index,
+            submit_article::form,
+            submit_article::submit,
+            get_blog::article
+        ],
     )
 }
