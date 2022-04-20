@@ -2,10 +2,10 @@ use crate::submit_article::Article;
 use rocket::serde::json;
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncReadExt;
-use std::io::Error;
+use std::io::Result as IoResult;
 use std::path::Path;
 
-async fn read_article(n: u32) -> std::io::Result<Article> {
+pub async fn read_article(n: u32) -> IoResult<Article> {
     let mut file = fs::OpenOptions::new()
         .read(true)
         .open(Path::new("articles").join(format!("{}.txt", n)))
@@ -19,12 +19,6 @@ async fn read_article(n: u32) -> std::io::Result<Article> {
 }
 
 #[get("/article/<n>")]
-pub async fn article(n: u32) -> Result<String, Error> {
-    let article = read_article(n).await;
-
-    match article {
-        Ok(a) => Ok(a.body),
-
-        Err(e) => Err(e),
-    }
+pub async fn article(n: u32) -> IoResult<String> {
+    read_article(n).await.map(|a| a.body)
 }
