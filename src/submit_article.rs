@@ -1,5 +1,6 @@
 use rocket::form::Form;
 use rocket::fs::NamedFile;
+use rocket::http::Status;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncWriteExt;
@@ -58,14 +59,15 @@ async fn persist(article: Article) -> std::io::Result<()> {
 }
 
 #[post("/submit", data = "<form>")]
-pub async fn submit(form: Form<Article>) -> Option<NamedFile> {
+pub async fn submit(form: Form<Article>) -> Result<NamedFile, Status> {
     let article = form.into_inner();
     let response = persist(article).await;
 
-    NamedFile::open(Path::new("static").join(match response {
-        Ok(_) => "success.html",
-        Err(_) => "error.html",
-    }))
-    .await
-    .ok()
+    match response {
+        Ok(_) => Ok(NamedFile::open(Path::new("static/success.html"))
+            .await
+            .unwrap()),
+
+        Err(_) => Err(Status::InternalServerError),
+    }
 }
