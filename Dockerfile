@@ -14,7 +14,7 @@ COPY src src
 RUN rm target/release/deps/blog*
 RUN cargo build --release
 
-FROM rust:1.54
+FROM debian:buster-slim
 
 COPY --from=build /blog/target/release/blog .
 
