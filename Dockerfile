@@ -18,9 +18,9 @@ FROM debian:buster-slim
 
 COPY --from=build /blog/target/release/blog .
 
-COPY articles articles
 COPY static static
 COPY templates templates
+COPY articles articles
 COPY Rocket.toml Rocket.toml
 
 CMD ["./blog"]
