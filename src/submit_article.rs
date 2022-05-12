@@ -1,11 +1,23 @@
 use rocket::form::Form;
-use rocket::fs::NamedFile;
 use rocket::http::Status;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncWriteExt;
+use rocket_dyn_templates::Template;
+use scrypt::{
+    password_hash::{PasswordHash, PasswordVerifier},
+    Scrypt,
+};
+use std::env;
+use std::io::Result as IoResult;
 use std::path::Path;
 use tokio_stream::{wrappers::ReadDirStream, StreamExt};
+
+#[derive(FromForm, Debug)]
+pub struct ArticleForm {
+    pub article: Article,
+    pub password: String,
+}
 
 #[derive(FromForm, Serialize, Deserialize, Clone, Debug)]
 #[serde(crate = "rocket::serde")]
@@ -15,10 +27,8 @@ pub struct Article {
 }
 
 #[get("/form")]
-pub async fn form() -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/upload_form.html"))
-        .await
-        .ok()
+pub async fn form() -> Template {
+    Template::render("upload_form", &json!({"wrong": false}))
 }
 
 async fn file_count() -> std::io::Result<u32> {
@@ -39,13 +49,13 @@ async fn file_count() -> std::io::Result<u32> {
     }
 }
 
-async fn persist(article: Article) -> std::io::Result<()> {
+async fn persist(article: Article) -> IoResult<()> {
     match file_count().await {
         Ok(n) => {
             let mut file = fs::OpenOptions::new()
                 .write(true)
                 .create(true)
-                .open(Path::new("articles").join(format!("{}.txt", n)))
+                .open(Path::new("articles").join(format!("{}.json", n)))
                 .await?;
 
             file.write(serde_json::to_string(&article)?.as_bytes())
@@ -58,15 +68,38 @@ async fn persist(article: Article) -> std::io::Result<()> {
     }
 }
 
-#[post("/submit", data = "<form>")]
-pub async fn submit(form: Form<Article>) -> Result<NamedFile, Status> {
-    let article = form.into_inner();
-    let response = persist(article).await;
+async fn check_password(password: &str) -> Result<bool, Status> {
+    let password_hash = env::var("PASSWORD_HASH").map_err(|_| Status::InternalServerError)?;
+    Ok(Scrypt
+        .verify_password(
+            password.as_bytes(),
+            &PasswordHash::new(&password_hash).unwrap(),
+        )
+        .is_ok())
+}
+
+#[post("/form", data = "<form>")]
+pub async fn submit(form: Form<ArticleForm>) -> Result<Template, Status> {
+    let r = form.into_inner();
+    let article = r.article;
+
+    if !check_password(&r.password).await? {
+        return Ok(Template::render(
+            "upload_form",
+            &json!(
+                {
+                    "wrong": true,
+                    "title": article.title,
+                    "body": article.body
+                }
+            ),
+        ));
+    }
+
+    let response = persist(article.clone()).await;
 
     match response {
-        Ok(_) => Ok(NamedFile::open(Path::new("static/success.html"))
-            .await
-            .unwrap()),
+        Ok(_) => Ok(Template::render("success", &json!({"name": article.title}))),
 
         Err(_) => Err(Status::InternalServerError),
     }

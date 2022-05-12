@@ -8,7 +8,7 @@ use std::path::Path;
 pub async fn read_article(n: u32) -> IoResult<Article> {
     let mut file = fs::OpenOptions::new()
         .read(true)
-        .open(Path::new("articles").join(format!("{}.txt", n)))
+        .open(Path::new("articles").join(format!("{}.json", n)))
         .await?;
 
     let mut contents = String::new();

@@ -68,15 +68,20 @@
 </head>
 
 <body>
-<form action="/submit" method="post">
+{{#if wrong}}Wrong Password!{{/if}}
+<form action="/form" method="post">
     <ul>
         <li>
             <label for="title">Title:</label>
-            <input type="text" id="title" name="title" />
+            <input type="text" id="title" name="article.title" {{#if wrong}}value="{{title}}{{/if}}" required/>
         </li>
         <li>
             <label for="body">Body:</label>
-            <textarea id="body" name="body"></textarea>
+            <textarea id="body" name="article.body" required>{{#if wrong}}{{body}}{{/if}}</textarea>
+        </li>
+        <li>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required/>
         </li>
         <li class="button">
             <button type="submit">Upload your article</button>
