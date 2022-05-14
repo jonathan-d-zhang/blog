@@ -15,8 +15,8 @@ async fn index() -> Template {
 
     let mut articles = Vec::new();
 
-    while let Ok(article) = get_article::read_article(i).await {
-        articles.push((i, article.title));
+    while let Ok(data) = get_article::read_article(i).await {
+        articles.push((i, data.title));
 
         i += 1;
     }

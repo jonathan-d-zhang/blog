@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <style>
+        /* Header */
+        header {
+
+        }
+
+        /* Article */
+        .article-text {
+            width: 40%;
+            margin: 100px auto 0;
+        }
+
+        article h1 {
+            font-size: 30pt;
+        }
+
+        article p {
+            font-size: 16pt;
+            line-height: 200%;
+        }
+    </style>
+</head>
+<body>
+<header><a href="/">Home Page</a></header>
+    <article class="article-text">
+        <h1>{{title}}</h1>
+        <span>time {{time}}</span><span class="separator"></span>
+        {{{body}}}
+    </article>
+</body>
+</html>

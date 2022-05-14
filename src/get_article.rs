@@ -1,11 +1,13 @@
-use crate::submit_article::Article;
+use crate::submit_article::SerArticle;
+use pulldown_cmark::{html, Parser};
 use rocket::serde::json;
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncReadExt;
+use rocket_dyn_templates::Template;
 use std::io::Result as IoResult;
 use std::path::Path;
 
-pub async fn read_article(n: u32) -> IoResult<Article> {
+pub async fn read_article(n: u32) -> IoResult<SerArticle> {
     let mut file = fs::OpenOptions::new()
         .read(true)
         .open(Path::new("articles").join(format!("{}.json", n)))
@@ -19,6 +21,15 @@ pub async fn read_article(n: u32) -> IoResult<Article> {
 }
 
 #[get("/article/<n>")]
-pub async fn article(n: u32) -> IoResult<String> {
-    read_article(n).await.map(|a| a.body)
+pub async fn article(n: u32) -> IoResult<Template> {
+    let data = read_article(n).await?;
+
+    let parser = Parser::new(&data.body);
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+
+    Ok(Template::render(
+        "article",
+        json!({"title": data.title, "body": html_output, "time": data.time}),
+    ))
 }

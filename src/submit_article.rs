@@ -1,3 +1,4 @@
+use chrono::Utc;
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::serde::{Deserialize, Serialize};
@@ -19,11 +20,29 @@ pub struct ArticleForm {
     pub password: String,
 }
 
-#[derive(FromForm, Serialize, Deserialize, Clone, Debug)]
+#[derive(FromForm, Serialize, Clone, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct Article {
     pub title: String,
     pub body: String,
+}
+
+impl Article {
+    fn create_ser_article(self) -> SerArticle {
+        SerArticle {
+            title: self.title,
+            body: self.body,
+            time: Utc::now().timestamp(),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(crate = "rocket::serde")]
+pub struct SerArticle {
+    pub title: String,
+    pub body: String,
+    pub time: i64,
 }
 
 #[get("/form")]
@@ -58,7 +77,7 @@ async fn persist(article: Article) -> IoResult<()> {
                 .open(Path::new("articles").join(format!("{}.json", n)))
                 .await?;
 
-            file.write(serde_json::to_string(&article)?.as_bytes())
+            file.write(serde_json::to_string(&article.create_ser_article())?.as_bytes())
                 .await?;
 
             Ok(())
