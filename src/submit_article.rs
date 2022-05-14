@@ -1,9 +1,11 @@
+use crate::ArticlesData;
 use chrono::Utc;
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncWriteExt;
+use rocket::State;
 use rocket_dyn_templates::Template;
 use scrypt::{
     password_hash::{PasswordHash, PasswordVerifier},
@@ -12,7 +14,7 @@ use scrypt::{
 use std::env;
 use std::io::Result as IoResult;
 use std::path::Path;
-use tokio_stream::{wrappers::ReadDirStream, StreamExt};
+use std::sync::atomic::Ordering;
 
 #[derive(FromForm, Debug)]
 pub struct ArticleForm {
@@ -50,41 +52,27 @@ pub async fn form() -> Template {
     Template::render("upload_form", &json!({"wrong": false}))
 }
 
-async fn file_count() -> std::io::Result<u32> {
-    let stream = fs::read_dir(Path::new("articles"))
+async fn persist(article: Article, articles_data: &State<ArticlesData>) -> IoResult<()> {
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(Path::new("articles").join(format!(
+            "{}.json",
+            articles_data.count.fetch_add(1, Ordering::Relaxed)
+        )))
+        .await?;
+
+    articles_data
+        .titles
+        .lock()
         .await
-        .map(|dirs| ReadDirStream::new(dirs).map(|_| 1));
+        .push(article.title.clone());
+    articles_data.update().await?;
 
-    match stream {
-        Ok(mut s) => {
-            let mut c = 0;
-            while s.next().await.is_some() {
-                c += 1;
-            }
+    file.write(serde_json::to_string(&article.create_ser_article())?.as_bytes())
+        .await?;
 
-            Ok(c)
-        }
-        Err(e) => Err(e),
-    }
-}
-
-async fn persist(article: Article) -> IoResult<()> {
-    match file_count().await {
-        Ok(n) => {
-            let mut file = fs::OpenOptions::new()
-                .write(true)
-                .create(true)
-                .open(Path::new("articles").join(format!("{}.json", n)))
-                .await?;
-
-            file.write(serde_json::to_string(&article.create_ser_article())?.as_bytes())
-                .await?;
-
-            Ok(())
-        }
-
-        Err(e) => Err(e),
-    }
+    Ok(())
 }
 
 async fn check_password(password: &str) -> Result<bool, Status> {
@@ -98,7 +86,10 @@ async fn check_password(password: &str) -> Result<bool, Status> {
 }
 
 #[post("/form", data = "<form>")]
-pub async fn submit(form: Form<ArticleForm>) -> Result<Template, Status> {
+pub async fn submit(
+    form: Form<ArticleForm>,
+    articles_data: &State<ArticlesData>,
+) -> Result<Template, Status> {
     let r = form.into_inner();
     let article = r.article;
 
@@ -115,7 +106,7 @@ pub async fn submit(form: Form<ArticleForm>) -> Result<Template, Status> {
         ));
     }
 
-    let response = persist(article.clone()).await;
+    let response = persist(article.clone(), articles_data).await;
 
     match response {
         Ok(_) => Ok(Template::render("success", &json!({"name": article.title}))),
