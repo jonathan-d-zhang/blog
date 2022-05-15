@@ -73,11 +73,11 @@
     <ul>
         <li>
             <label for="title">Title:</label>
-            <input type="text" id="title" name="article.title" {{#if wrong}}value="{{title}}{{/if}}" required/>
+            <input type="text" id="title" name="title_body.title" {{#if wrong}}value="{{title}}{{/if}}" required/>
         </li>
         <li>
             <label for="body">Body:</label>
-            <textarea id="body" name="article.body" required>{{#if wrong}}{{body}}{{/if}}</textarea>
+            <textarea id="body" name="title_body.body" required>{{#if wrong}}{{body}}{{/if}}</textarea>
         </li>
         <li>
             <label for="password">Password:</label>

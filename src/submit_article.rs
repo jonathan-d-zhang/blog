@@ -1,8 +1,9 @@
-use crate::ArticlesData;
+use super::FileCount;
+use crate::article::Article;
 use chrono::Utc;
 use rocket::form::Form;
 use rocket::http::Status;
-use rocket::serde::{Deserialize, Serialize};
+use rocket::serde::Serialize;
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncWriteExt;
 use rocket::State;
@@ -18,20 +19,20 @@ use std::sync::atomic::Ordering;
 
 #[derive(FromForm, Debug)]
 pub struct ArticleForm {
-    pub article: Article,
+    pub title_body: TitleBody,
     pub password: String,
 }
 
 #[derive(FromForm, Serialize, Clone, Debug)]
 #[serde(crate = "rocket::serde")]
-pub struct Article {
+pub struct TitleBody {
     pub title: String,
     pub body: String,
 }
 
-impl Article {
-    fn create_ser_article(self) -> SerArticle {
-        SerArticle {
+impl TitleBody {
+    fn create_article(self) -> Article {
+        Article {
             title: self.title,
             body: self.body,
             time: Utc::now().timestamp(),
@@ -39,37 +40,22 @@ impl Article {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(crate = "rocket::serde")]
-pub struct SerArticle {
-    pub title: String,
-    pub body: String,
-    pub time: i64,
-}
-
 #[get("/form")]
 pub async fn form() -> Template {
     Template::render("upload_form", &json!({"wrong": false}))
 }
 
-async fn persist(article: Article, articles_data: &State<ArticlesData>) -> IoResult<()> {
+async fn persist(article: TitleBody, file_count: &State<FileCount>) -> IoResult<()> {
     let mut file = fs::OpenOptions::new()
         .write(true)
         .create(true)
         .open(Path::new("articles").join(format!(
             "{}.json",
-            articles_data.count.fetch_add(1, Ordering::Relaxed)
+            file_count.0.fetch_add(1, Ordering::Relaxed)
         )))
         .await?;
 
-    articles_data
-        .titles
-        .lock()
-        .await
-        .push(article.title.clone());
-    articles_data.update().await?;
-
-    file.write(serde_json::to_string(&article.create_ser_article())?.as_bytes())
+    file.write(serde_json::to_string(&article.create_article())?.as_bytes())
         .await?;
 
     Ok(())
@@ -88,10 +74,10 @@ async fn check_password(password: &str) -> Result<bool, Status> {
 #[post("/form", data = "<form>")]
 pub async fn submit(
     form: Form<ArticleForm>,
-    articles_data: &State<ArticlesData>,
+    file_count: &State<FileCount>,
 ) -> Result<Template, Status> {
     let r = form.into_inner();
-    let article = r.article;
+    let title_body = r.title_body;
 
     if !check_password(&r.password).await? {
         return Ok(Template::render(
@@ -99,17 +85,20 @@ pub async fn submit(
             &json!(
                 {
                     "wrong": true,
-                    "title": article.title,
-                    "body": article.body
+                    "title": title_body.title,
+                    "body": title_body.body
                 }
             ),
         ));
     }
 
-    let response = persist(article.clone(), articles_data).await;
+    let response = persist(title_body.clone(), file_count).await;
 
     match response {
-        Ok(_) => Ok(Template::render("success", &json!({"name": article.title}))),
+        Ok(_) => Ok(Template::render(
+            "success",
+            &json!({"name": title_body.title}),
+        )),
 
         Err(_) => Err(Status::InternalServerError),
     }
