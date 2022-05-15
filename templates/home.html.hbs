@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog</title>
+    <link type="text/css" rel="stylesheet" href="/styles/global.css">
+    <link rel="preload" href="/fonts/Fira Code Regular Nerd Font Complete.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a href="/">Home</a>
+                <a href="/articles">Articles</a>
+            </div>
+            <div class="nav-right">
+                <a href="/form">Upload Article</a>
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+        Hello, my name is Jonathan. I am a first year Computer Science student at Temple University.
+        <ul class="article_list">
+            {{#each articles}}
+                <li><a href="article/{{this.0}}">{{this.1}}</a></li>
+            {{/each}}
+        </ul>
+
+        <p>Link to upload articles <a href="form">the link</a></p>
+    </div>
+</body>
+</html>

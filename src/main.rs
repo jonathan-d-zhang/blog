@@ -4,6 +4,7 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_json;
 
+use rocket::fs::{relative, FileServer};
 use rocket::serde::json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::fs;
@@ -22,30 +23,9 @@ mod submit_article;
 async fn index(articles_data: &State<ArticlesData>) -> Template {
     let articles = articles_data.titles.lock().await;
     Template::render(
-        "index",
-        &json!({ "articles": articles.iter().enumerate().collect::<Vec<_>>() }),
+        "home",
+        &json!({ "articles": articles.iter().enumerate().take(3).collect::<Vec<_>>() }),
     )
-}
-
-#[launch]
-fn rocket() -> _ {
-    let article_data = SerArticlesData::load();
-
-    rocket::build()
-        .mount(
-            "/",
-            routes![
-                index,
-                submit_article::form,
-                submit_article::submit,
-                get_article::article
-            ],
-        )
-        .attach(Template::fairing())
-        .manage(ArticlesData {
-            count: article_data.count,
-            titles: article_data.titles,
-        })
 }
 
 pub struct ArticlesData {
@@ -100,4 +80,27 @@ impl ArticlesData {
             .await?;
         Ok(())
     }
+}
+
+#[launch]
+fn rocket() -> _ {
+    let article_data = SerArticlesData::load();
+
+    rocket::build()
+        .mount(
+            "/",
+            routes![
+                index,
+                submit_article::form,
+                submit_article::submit,
+                get_article::article
+            ],
+        )
+        .mount("/styles", FileServer::from(relative!("styles")))
+        .mount("/fonts", FileServer::from(relative!("fonts")))
+        .attach(Template::fairing())
+        .manage(ArticlesData {
+            count: article_data.count,
+            titles: article_data.titles,
+        })
 }

@@ -1,0 +1,13 @@
+/* Article */
+article h1 {
+    font-size: 30pt;
+}
+
+article p {
+    font-size: 14pt;
+    line-height: 200%;
+}
+
+.upload-date {
+    margin-bottom: 2.5rem;
+}
