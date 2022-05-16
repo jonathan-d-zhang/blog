@@ -1,6 +1,7 @@
 use super::FileCount;
 use crate::article::Article;
 use chrono::Utc;
+use pulldown_cmark::{html, Parser};
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::serde::Serialize;
@@ -32,9 +33,12 @@ pub struct TitleBody {
 
 impl TitleBody {
     fn create_article(self) -> Article {
+        let parser = Parser::new(&self.body);
+        let mut html_output = String::new();
+        html::push_html(&mut html_output, parser);
         Article {
             title: self.title,
-            body: self.body,
+            body: html_output,
             time: Utc::now().timestamp(),
         }
     }

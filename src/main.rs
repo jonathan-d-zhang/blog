@@ -18,14 +18,15 @@ async fn index() -> Template {
     let mut i = 0;
     let mut articles = Vec::new();
     while let Ok(article) = Article::read_article(i).await {
-        articles.push((i, article));
+        if i > 2 {
+            break;
+        }
+
+        articles.push((article.truncate_body(), article.parse_timestamp(), article));
         i += 1;
     }
 
-    Template::render(
-        "home",
-        json!({"articles": articles, "summary": articles.iter().map(|a| a.1.truncate_body()).collect::<Vec<_>>()}),
-    )
+    Template::render("home", json!({ "articles": articles }))
 }
 
 #[launch]

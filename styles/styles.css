@@ -21,8 +21,10 @@ body {
     font-family: "Fira Code Mono";
     src: url("/fonts/Fira Code Regular Nerd Font Complete Mono.woff2") format("woff2");
 }
+
+/* Navigation header*/
 .nav {
-    background: #ff44d6;
+    background: rgba(255, 68, 214, 0.75);
     box-shadow: 0 0 1px 0 rgb(129 83 165 / 8%), 0 6px 12px 0 rgb(129 83 165 / 7%), 0 1px 1px 0 rgb(129 83 165 / 7%);
     position: sticky;
     top: 0;
@@ -60,7 +62,7 @@ body {
 }
 
 .nav-left a:hover, .nav-right a:hover {
-    background: #e144bf
+    background: #ff44d6
 }
 
 .nav-right {
@@ -84,4 +86,38 @@ body {
     max-width: min(760px, 100%);
     font-family: "Fira Code", serif;
     font-size: 14pt;
+}
+
+/* Article */
+.article-text h1 {
+    font-size: 30pt;
+}
+
+.article-text p {
+    font-size: 14pt;
+    line-height: 200%;
+}
+
+.upload-date {
+    margin-bottom: 2.5rem;
+}
+
+/* Articles List */
+.article-list {
+    margin-top: 3rem;
+}
+.article-list-item {
+    border-radius: 4px;
+    margin-bottom: 6rem;
+    position: relative;
+}
+.article-title a {
+    font-size: 1.6rem;
+    text-decoration: none;
+}
+.article-title a:visited {
+    color: black;
+}
+.article-list-item .upload-date {
+    font-size: 1rem;
 }

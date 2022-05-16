@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Blog</title>
-    <link type="text/css" rel="stylesheet" href="/styles/global.css">
+    <link type="text/css" rel="stylesheet" href="/styles/styles.css">
     <link rel="preload" href="/fonts/Fira Code Regular Nerd Font Complete.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
@@ -20,14 +20,19 @@
 
     </div>
     <div class="content">
-        Hello, my name is Jonathan. I am a first year Computer Science student at Temple University.
-        <ul class="article_list">
-            {{#each articles}}
-                <li><a href="article/{{this.0}}">{{this.1}}</a></li>
+        <p>Hello, my name is Jonathan. I am a first year Computer Science student at Temple University.</p>
+        <div class="article-list">
+            <h1>Articles</h1>
+            {{#each articles as |article i|}}
+                <div class="article-list-item">
+                    <div class="article-title">
+                        <h3><a href="article/{{i}}">{{article.2.title}}</a></h3>
+                    </div>
+                    <div class="upload-date">{{article.1}}</div>
+                    {{{article.0}}}
+                </div>
             {{/each}}
-        </ul>
-
-        <p>Link to upload articles <a href="form">the link</a></p>
+        </div>
     </div>
 </body>
 </html>
