@@ -16,13 +16,15 @@ RUN cargo build --release
 
 FROM debian:buster-slim
 
-COPY --from=build /blog/target/release/blog .
+COPY --from=build /blog/target/release/blog ./app
 
 COPY static static
+COPY styles /blog/styles
 COPY templates templates
 COPY articles articles
 COPY Rocket.toml Rocket.toml
+COPY fonts /blog/fonts
 
-CMD ["./blog"]
+CMD ["./app"]
 
 EXPOSE 80

@@ -45,10 +45,11 @@ impl Article {
             match byte {
                 b'<' => in_brackets = true,
                 b'>' => in_brackets = false,
-                _ => (),
-            }
-            if !in_brackets {
-                i += 1;
+                _ => {
+                    if !in_brackets {
+                        i += 1;
+                    }
+                }
             }
             shortened.push(byte);
         }
