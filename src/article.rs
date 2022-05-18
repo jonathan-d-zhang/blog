@@ -15,7 +15,7 @@ pub struct Article {
 }
 
 impl Article {
-    pub async fn read_article(n: u32) -> IoResult<Article> {
+    pub async fn read_article(n: u32) -> IoResult<Self> {
         let mut file = fs::OpenOptions::new()
             .read(true)
             .open(Path::new("articles").join(format!("{}.json", n)))
@@ -26,6 +26,15 @@ impl Article {
         let article = json::from_str(&contents).unwrap();
 
         Ok(article)
+    }
+
+    pub async fn read_articles(n: u32) -> IoResult<Vec<Self>> {
+        let mut articles = Vec::new();
+        for i in 0..n {
+            articles.push(Self::read_article(i).await?);
+        }
+
+        Ok(articles)
     }
 
     pub fn truncate_body(&self) -> String {
