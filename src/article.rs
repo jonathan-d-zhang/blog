@@ -1,27 +1,38 @@
-use crate::FileCount;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rocket::serde::json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncReadExt;
-use rocket::State;
 use std::io::Result as IoResult;
 use std::path::Path;
-use std::sync::atomic::Ordering;
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct Article {
     pub title: String,
     pub body: String,
-    pub time: i64,
+    pub truncated_body: String,
+    timestamp: i64,
+    pub formatted_time: String,
+    pub filename: String,
 }
 
 impl Article {
-    pub async fn read_article(n: u32) -> IoResult<Self> {
+    pub fn new(title: String, body: String, timestamp: i64) -> Self {
+        Article {
+            title: title.clone(),
+            body: body.clone(),
+            truncated_body: Self::truncate_body(body),
+            timestamp,
+            formatted_time: Self::parse_timestamp(timestamp),
+            filename: Self::filename(title),
+        }
+    }
+
+    pub async fn read_article(path: impl AsRef<Path>) -> IoResult<Self> {
         let mut file = fs::OpenOptions::new()
             .read(true)
-            .open(Path::new("articles").join(format!("{}.json", n)))
+            .open(Path::new("articles").join(path.as_ref().with_extension("json")))
             .await?;
 
         let mut contents = String::new();
@@ -31,25 +42,34 @@ impl Article {
         Ok(article)
     }
 
-    pub async fn read_articles(n: u32, file_count: &State<FileCount>) -> IoResult<Vec<Self>> {
+    pub async fn read_articles() -> IoResult<Vec<Self>> {
+        let mut iter = fs::read_dir("articles").await?;
         let mut articles = Vec::new();
-        let fc = file_count.0.load(Ordering::Relaxed);
-        for i in (fc as u32 - n..fc as u32).rev() {
-            articles.push(Self::read_article(i).await?);
+
+        while let Ok(Some(entry)) = iter.next_entry().await {
+            articles.push(Self::read_article(entry.path().file_name().unwrap()).await?)
         }
 
         Ok(articles)
     }
 
-    pub fn truncate_body(&self) -> String {
-        let s = self.body.clone();
+    fn filename(s: String) -> String {
+        s.chars()
+            .filter_map(|ch| match ch {
+                x if x.is_ascii_alphanumeric() => Some(x.to_ascii_lowercase()),
+                ' ' => Some('-'),
+                _ => None,
+            })
+            .collect()
+    }
 
+    fn truncate_body(body: String) -> String {
         // manually iterate instead of using `take(120)` because we want to ignore
         // html tags in our character count
         let mut shortened = Vec::new();
         let mut in_brackets = false;
         let mut i = 0;
-        for byte in s.trim_end().bytes() {
+        for byte in body.trim_end().bytes() {
             if i == 120 {
                 break;
             }
@@ -88,8 +108,8 @@ impl Article {
         }
     }
 
-    pub fn parse_timestamp(&self) -> String {
-        let dt = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(self.time, 0), Utc);
+    fn parse_timestamp(timestamp: i64) -> String {
+        let dt = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
         format!("{}", dt.format("%B %e, %Y"))
     }
 }

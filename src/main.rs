@@ -7,24 +7,18 @@ extern crate serde_json;
 use crate::article::Article;
 use rocket::fs::{relative, FileServer};
 use rocket::http::Status;
-use rocket::State;
 use rocket_dyn_templates::Template;
-use std::sync::atomic::AtomicUsize;
 
 mod article;
 mod get_article;
 mod submit_article;
 
 #[get("/")]
-async fn index(n: &State<FileCount>) -> Result<Template, Status> {
-    let mut articles = Vec::new();
-    for article in Article::read_articles(3, n)
+async fn index() -> Result<Template, Status> {
+    let articles = Article::read_articles()
         .await
         .map_err(|_| Status::InternalServerError)
-        .unwrap()
-    {
-        articles.push((article.truncate_body(), article.parse_timestamp(), article));
-    }
+        .unwrap();
 
     Ok(Template::render("home", json!({ "articles": articles })))
 }
@@ -45,9 +39,4 @@ fn rocket() -> _ {
         .mount("/styles", FileServer::from(relative!("styles")))
         .mount("/fonts", FileServer::from(relative!("fonts")))
         .attach(Template::fairing())
-        .manage(FileCount(AtomicUsize::new(
-            std::fs::read_dir("articles").unwrap().count(),
-        )))
 }
-
-pub struct FileCount(AtomicUsize);

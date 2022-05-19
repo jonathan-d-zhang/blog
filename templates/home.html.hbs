@@ -25,13 +25,13 @@
         <p>Hello, my name is Jonathan. I am a first year Computer Science student at Temple University.</p>
         <div class="article-list">
             <h2>Latest Articles</h2>
-            {{#each articles as |article i|}}
+            {{#each articles as |article|}}
                 <div class="article-list-item">
                     <div class="article-title">
-                        <h3><a href="article/{{i}}">{{article.2.title}}</a></h3>
+                        <h3><a href="article/{{article.filename}}">{{article.title}}</a></h3>
                     </div>
-                    <div class="upload-date"><p>{{article.1}}</p></div>
-                    {{{article.0}}}
+                    <div class="upload-date"><p>{{article.formatted_time}}</p></div>
+                    {{{article.truncated_body}}}
                 </div>
             {{/each}}
         </div>

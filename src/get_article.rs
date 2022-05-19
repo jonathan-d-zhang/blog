@@ -1,28 +1,20 @@
 use crate::article::Article;
-use crate::FileCount;
-use rocket::State;
 use rocket_dyn_templates::Template;
 use std::io::Result as IoResult;
-use std::sync::atomic::Ordering;
 
 #[get("/articles")]
-pub async fn articles(article_count: &State<FileCount>) -> IoResult<Template> {
-    let t = article_count.0.load(Ordering::Relaxed);
-    let articles = Article::read_articles(t as u32, article_count).await?;
+pub async fn articles() -> IoResult<Template> {
+    let articles = Article::read_articles().await?;
 
     Ok(Template::render(
         "articles",
-        json!({"articles": articles.into_iter().map(|article| (article.truncate_body(), article.parse_timestamp(), article)).collect::<Vec<_>>()
-        }),
+        json!({ "articles": articles }),
     ))
 }
 
-#[get("/article/<n>")]
-pub async fn article_page(n: u32) -> IoResult<Template> {
-    let data = Article::read_article(n).await?;
+#[get("/article/<path>")]
+pub async fn article_page(path: &str) -> IoResult<Template> {
+    let data = Article::read_article(path).await?;
 
-    Ok(Template::render(
-        "post",
-        json!({"title": data.title, "body": data.body, "time": data.parse_timestamp()}),
-    ))
+    Ok(Template::render("post", json!({ "article": data })))
 }
