@@ -69,43 +69,47 @@ impl Article {
         let mut shortened = Vec::new();
         let mut in_brackets = false;
         let mut i = 0;
-        for byte in body.trim_end().bytes() {
+        for ch in body.trim_end().chars() {
             if i == 120 {
                 break;
             }
             // this isn't very robust, but we can just try to avoid writing <>
-            // in the first 120 bytes
-            match byte {
-                b'<' => in_brackets = true,
-                b'>' => in_brackets = false,
+            // in the first 120 chars
+            match ch {
+                '<' => in_brackets = true,
+                '>' => in_brackets = false,
                 _ => {
                     if !in_brackets {
                         i += 1;
                     }
                 }
             }
-            shortened.push(byte);
+            shortened.push(ch);
         }
 
         if shortened.len() < 120 {
-            // if it's less than 120 bytes, we didn't truncate anything,
+            // if it's less than 120 chars, we didn't truncate anything,
             // so we know it's valid
-            String::from_utf8(shortened).unwrap()
-        } else if let Some(i) = shortened.iter().rev().position(|&b| b == b'.') {
+        } else if let Some(i) = shortened
+            .iter()
+            .rev()
+            .position(|&ch| ch == '.' || ch == '!' || ch == '?')
+        {
+            // truncate to the last complete sentence
+            // assume these punctuation marks will end a sentence
             shortened.truncate(shortened.len() - i);
-
-            String::from_utf8(shortened).unwrap()
         } else {
             // assume that the first 120 chars are not one big word
-            // pop bytes until we reach a space
+            // pop chars until we reach a space
             while let Some(b) = shortened.pop() {
-                if b == b' ' {
+                if b == ' ' {
                     break;
                 }
             }
-
-            String::from_utf8(shortened).unwrap() + "..."
+            shortened.extend("...".chars());
         }
+
+        shortened.into_iter().collect()
     }
 
     fn parse_timestamp(timestamp: i64) -> String {
