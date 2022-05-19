@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>{{title}}</title>
     <link type="text/css" rel="stylesheet" href="/styles/styles.css">
-    <link rel="preload" href="/fonts/Fira-Code-Regular-Nerd-Font-Complete.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/Fira-Code-Regular-Nerd-Font-Complete-Mono.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/OpenSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
@@ -24,7 +25,7 @@
     <div class="content">
         <article class="article-text">
             <h1>{{article.title}}</h1>
-            <div class="upload-date">{{article.formatted_time}}</div>
+            <div class="upload-date"><p>{{article.formatted_time}}</p></div>
             {{{article.body}}}
         </article>
     </div>

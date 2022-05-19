@@ -96,7 +96,7 @@ impl Article {
 
             String::from_utf8(shortened).unwrap()
         } else {
-            // assume that the first 120 chars are one big word
+            // assume that the first 120 chars are not one big word
             // pop bytes until we reach a space
             while let Some(b) = shortened.pop() {
                 if b == b' ' {

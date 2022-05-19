@@ -1,34 +1,27 @@
+@font-face {
+    font-family: "Open Sans";
+    src: url("/fonts/OpenSans-Regular.woff2") format("woff2");
+}
+@font-face {
+    font-family: "Fira Code Mono";
+    src: url("/fonts/Fira-Code-Regular-Nerd-Font-Complete-Mono.woff2") format("woff2");
+}
 html {
     font-size: 14pt;
 }
 body {
     padding: 0;
     margin: 0;
+    font-family: "Open Sans", sans-serif
+}
+h1 {
+    font-size: 2rem;
 }
 h2 {
     font-size: 1.7rem;
 }
 h3 {
     font-size: 1.3rem;
-}
-
-@font-face {
-    font-family: "Computer Modern";
-    src: url("/fonts/cmunrm.woff2") format("woff2");
-}
-
-@font-face {
-    font-family: "Computer Modern Sans Serif";
-    src: url("/fonts/cmunss.woff2") format("woff2");
-}
-@font-face {
-    font-family: "Fira Code";
-    src: url("/fonts/Fira-Code-Regular-Nerd-Font-Complete.woff2") format("woff2");
-}
-
-@font-face {
-    font-family: "Fira Code Mono";
-    src: url("/fonts/Fira-Code-Regular-Nerd-Font-Complete-Mono.woff2") format("woff2");
 }
 
 /* Navigation header*/
@@ -53,7 +46,6 @@ h3 {
 .nav-content a {
     text-decoration: none;
     color: white;
-    font-family: "Fira Code", sans-serif;
     align-items: center;
 }
 
@@ -94,17 +86,10 @@ h3 {
     margin: 0 auto;
     padding: 0 15px;
     max-width: min(760px, 100%);
-    font-family: "Fira Code", serif;
-    font-size: 14pt;
 }
 
 /* Article */
-.article-text h1 {
-    font-size: 30pt;
-}
-
 .article-text p {
-    font-size: 14pt;
     line-height: 200%;
 }
 .upload-date {
@@ -113,6 +98,9 @@ h3 {
 .upload-date p {
     font-size: .8rem;
     color: gray;
+}
+pre code {
+    font-family: "Fira Code Mono", sans-serif;
 }
 
 /* Articles List */
@@ -127,6 +115,7 @@ h3 {
 .article-title a {
     font-size: 1rem;
     text-decoration: none;
+    color: black
 }
 .article-title a:visited {
     color: black;
@@ -139,5 +128,11 @@ h3 {
 .form-field {
     display: flex;
     flex-direction: column;
+    margin-top: 2rem;
+}
+
+.wrong-password {
+    font-size: .8rem;
     margin-bottom: 2rem;
+    color: #d93025;
 }
