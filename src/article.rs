@@ -1,10 +1,13 @@
+use crate::FileCount;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rocket::serde::json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::fs;
 use rocket::tokio::io::AsyncReadExt;
+use rocket::State;
 use std::io::Result as IoResult;
 use std::path::Path;
+use std::sync::atomic::Ordering;
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(crate = "rocket::serde")]
@@ -28,9 +31,10 @@ impl Article {
         Ok(article)
     }
 
-    pub async fn read_articles(n: u32) -> IoResult<Vec<Self>> {
+    pub async fn read_articles(n: u32, file_count: &State<FileCount>) -> IoResult<Vec<Self>> {
         let mut articles = Vec::new();
-        for i in 0..n {
+        let fc = file_count.0.load(Ordering::Relaxed);
+        for i in (fc as u32 - n..fc as u32).rev() {
             articles.push(Self::read_article(i).await?);
         }
 

@@ -59,6 +59,8 @@ async fn persist(article: TitleBody, file_count: &State<FileCount>) -> IoResult<
         )))
         .await?;
 
+    // can only write 16 * 1024 bytes at once, maybe implement chunking later
+    // for now, assume i'll never write that long of an article
     file.write(serde_json::to_string(&article.create_article())?.as_bytes())
         .await?;
 

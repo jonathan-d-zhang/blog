@@ -14,12 +14,12 @@ body {
 }
 @font-face {
     font-family: "Fira Code";
-    src: url("/fonts/Fira Code Regular Nerd Font Complete.woff2") format("woff2");
+    src: url("/fonts/Fira-Code-Regular-Nerd-Font-Complete.woff2") format("woff2");
 }
 
 @font-face {
     font-family: "Fira Code Mono";
-    src: url("/fonts/Fira Code Regular Nerd Font Complete Mono.woff2") format("woff2");
+    src: url("/fonts/Fira-Code-Regular-Nerd-Font-Complete-Mono.woff2") format("woff2");
 }
 
 /* Navigation header*/
@@ -121,4 +121,11 @@ body {
 }
 .article-list-item .upload-date {
     font-size: 1rem;
+}
+
+/* Form */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
 }

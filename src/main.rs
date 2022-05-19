@@ -7,6 +7,7 @@ extern crate serde_json;
 use crate::article::Article;
 use rocket::fs::{relative, FileServer};
 use rocket::http::Status;
+use rocket::State;
 use rocket_dyn_templates::Template;
 use std::sync::atomic::AtomicUsize;
 
@@ -15,9 +16,9 @@ mod get_article;
 mod submit_article;
 
 #[get("/")]
-async fn index() -> Result<Template, Status> {
+async fn index(n: &State<FileCount>) -> Result<Template, Status> {
     let mut articles = Vec::new();
-    for article in Article::read_articles(3)
+    for article in Article::read_articles(3, n)
         .await
         .map_err(|_| Status::InternalServerError)
         .unwrap()

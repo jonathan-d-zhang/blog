@@ -3,90 +3,41 @@
 <head>
     <meta charset="utf-8" />
     <title>Upload Article</title>
-    <style>
-        form {
-            /* Just to center the form on the page */
-            margin: 0 auto;
-            width: 400px;
-            /* To see the outline of the form */
-            padding: 1em;
-            border: 1px solid #ccc;
-            border-radius: 1em;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        form li + li {
-            margin-top: 1em;
-        }
-
-        label {
-            /* To make sure that all labels have the same size and are properly aligned */
-            display: inline-block;
-            width: 90px;
-            text-align: right;
-        }
-
-        input,
-        textarea {
-            /* To make sure that all text fields have the same font settings By default, textareas have a monospace font */
-            font: 1em sans-serif;
-            /* To give the same size to all text fields */
-            width: 300px;
-            box-sizing: border-box; /* To harmonize the look & feel of text field border */
-            border: 1px solid #999;
-        }
-
-        input:focus,
-        textarea:focus {
-            /* To give a little highlight on active elements */
-            border-color: #000;
-        }
-
-        textarea {
-            /* To properly align multiline text fields with their labels */
-            vertical-align: top;
-            /* To give enough room to type some text */
-            height: 5em;
-        }
-
-        .button {
-            /* To position the buttons to the same position of the text fields */
-            padding-left: 90px;
-            /* same size as the label elements */
-        }
-
-        button {
-            /* This extra margin represent roughly the same space as the space between the labels and their text fields */
-            margin-left: 0.5em;
-        }
-    </style>
+    <link type="text/css" rel="stylesheet" href="/styles/styles.css">
+    <link rel="preload" href="/fonts/Fira-Code-Regular-Nerd-Font-Complete.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 
 <body>
+<div class="nav">
+    <div class="nav-content">
+        <div class="nav-left">
+            <a href="/">Home</a>
+            <a href="/articles">Articles</a>
+        </div>
+        <div class="nav-right">
+            <a href="/form">Upload Article</a>
+        </div>
+    </div>
+</div>
+<div class="content">
 {{#if wrong}}Wrong Password!{{/if}}
-<form action="/form" method="post">
-    <ul>
-        <li>
+    <form action="/form" method="post">
+        <div class="form-field-list">
+        <div class="form-field">
             <label for="title">Title:</label>
             <input type="text" id="title" name="title_body.title" {{#if wrong}}value="{{title}}{{/if}}" required/>
-        </li>
-        <li>
+        </div>
+        <div class="form-field">
             <label for="body">Body:</label>
-            <textarea id="body" name="title_body.body" required>{{#if wrong}}{{body}}{{/if}}</textarea>
-        </li>
-        <li>
+            <textarea id="body" name="title_body.body" rows="10" required>{{#if wrong}}{{body}}{{/if}}</textarea>
+        </div>
+        <div class="form-field">
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required/>
-        </li>
-        <li class="button">
-            <button type="submit">Upload your article</button>
-        </li>
-    </ul>
-</form>
+        </div>
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+</div>
 </body>
 </html>
