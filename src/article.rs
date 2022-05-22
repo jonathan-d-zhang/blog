@@ -50,6 +50,8 @@ impl Article {
             articles.push(Self::read_article(entry.path().file_name().unwrap()).await?)
         }
 
+        articles.sort_by_key(|a| -a.timestamp);
+
         Ok(articles)
     }
 

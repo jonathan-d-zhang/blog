@@ -1,6 +1,6 @@
 use crate::article::Article;
 use chrono::Utc;
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{html, Options, Parser};
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::serde::Serialize;
@@ -30,7 +30,10 @@ pub struct TitleBody {
 
 impl TitleBody {
     fn create_article(self) -> Article {
-        let parser = Parser::new(&self.body);
+        let mut options = Options::empty();
+        options.insert(Options::ENABLE_STRIKETHROUGH);
+        options.insert(Options::ENABLE_TABLES);
+        let parser = Parser::new_ext(&self.body, options);
         let mut html_output = String::new();
         html::push_html(&mut html_output, parser);
         Article::new(self.title, html_output, Utc::now().timestamp())
