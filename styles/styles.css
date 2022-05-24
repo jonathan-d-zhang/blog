@@ -19,13 +19,13 @@ body {
     font-family: "Open Sans", sans-serif
 }
 h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
 }
 h2 {
-    font-size: 1.7rem;
+    font-size: 1.9rem;
 }
 h3 {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
 }
 
 /* Navigation header*/
@@ -104,8 +104,10 @@ h3 {
     font-size: .8rem;
     color: gray;
 }
-pre code {
+code {
     font-family: "Fira Code Mono", sans-serif;
+    font-size: .75rem;
+    background: #f3f3f3
 }
 
 /* Articles List */
@@ -118,7 +120,6 @@ pre code {
     position: relative;
 }
 .article-title a {
-    font-size: 1rem;
     text-decoration: none;
     color: black
 }
