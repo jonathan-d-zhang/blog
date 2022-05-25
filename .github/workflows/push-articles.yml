@@ -1,10 +1,10 @@
 name: push-articles
-on: [push]
-#  push:
-#    branches:
-#      - master
-#    paths:
-#      - 'articles/**'
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'articles/**'
 jobs:
   push-articles:
     runs-on: ubuntu-latest
