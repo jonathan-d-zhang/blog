@@ -45,15 +45,15 @@ jobs:
             IMAGE_TAG=$(aws lightsail get-container-images --service blog | jq -r .containerImages[0].image)
             aws lightsail create-container-service-deployment \
               --service-name blog \
-              --containers '{
-                "blog": {
-                  "image": "$IMAGE_TAG",
-                  "ports": {
-                    "80": "HTTP"
+              --containers "{
+                \"blog\": {
+                  \"image\": "$IMAGE_TAG",
+                  \"ports\": {
+                    \"80\": \"HTTP\"
                   }
-                }' \
+                }" \
               --public-endpoint '{
                 "containerName": blog,
                 "containerPort": 80
-              }'
+                }'
 
