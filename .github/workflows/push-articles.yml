@@ -22,7 +22,7 @@ jobs:
         - name: Create Container
           uses: docker/build-push-action@v2
           with:
-            tags: blog:latest
+            tags: blog-latest
             load: true
             builder: ${{ steps.buildx.outputs.name }}
             cache-from: type=local,src=/tmp/.buildx-cache
@@ -41,7 +41,7 @@ jobs:
             chmod +x /usr/local/bin/lightsailctl
         - name: Push to Lightsail and Deploy
           run: |
-            aws lightsail push-container-image --service-name blog --label blog:latest --image blog:latest
+            aws lightsail push-container-image --service-name blog --label blog-latest --image blog-latest
             IMAGE_TAG=$(aws lightsail get-container-images --service blog | jq -r .containerImages[0].image)
             aws lightsail create-container-service-deployment \
               --service-name blog \
