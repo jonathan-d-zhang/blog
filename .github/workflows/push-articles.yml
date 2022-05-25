@@ -9,10 +9,11 @@ jobs:
   push-articles:
     runs-on: ubuntu-latest
     steps:
-        - name: Install and Configure AWS CLI
+        - name: Install AWS CLI
           uses: unfor19/install-aws-cli-action@v1.0.3
-        - run: |
+        - name: Configure AWS CLI
+          run: |
             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws configure set region us-east-1
-            echo $(aws lightsail get-container-images)
+            echo $(aws lightsail get-container-images --service-name blog)
