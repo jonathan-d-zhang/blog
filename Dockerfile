@@ -22,6 +22,7 @@ COPY static static
 COPY styles /blog/styles
 COPY templates templates
 COPY articles articles
+RUN mkdir articles/json
 COPY Rocket.toml Rocket.toml
 COPY fonts /blog/fonts
 

@@ -8,7 +8,7 @@ extern crate lazy_static;
 extern crate serde_json;
 
 use crate::article::Article;
-use rocket::fs::{relative, FileServer};
+use rocket::fs::{relative, FileServer, NamedFile};
 use rocket::http::Status;
 use rocket_dyn_templates::Template;
 use std::io::Result as IoResult;
@@ -27,6 +27,11 @@ async fn index() -> Result<Template, Status> {
     Ok(Template::render("home", json!({ "articles": articles })))
 }
 
+#[get("/about")]
+async fn about() -> Option<NamedFile> {
+    NamedFile::open("static/about.html").await.ok()
+}
+
 #[launch]
 fn rocket() -> _ {
     compile_markdown().unwrap();
@@ -34,7 +39,12 @@ fn rocket() -> _ {
     rocket::build()
         .mount(
             "/",
-            routes![index, get_article::article_page, get_article::articles],
+            routes![
+                index,
+                about,
+                get_article::article_page,
+                get_article::articles
+            ],
         )
         .mount("/styles", FileServer::from(relative!("styles")))
         .mount("/fonts", FileServer::from(relative!("fonts")))
@@ -48,7 +58,6 @@ fn compile_markdown() -> IoResult<()> {
             .join(path.file_name().unwrap())
             .with_extension("json");
         if !html_path.exists() {
-            println!("{:?}", path);
             Article::compile_markdown(path)?
         }
     }
