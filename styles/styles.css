@@ -19,13 +19,13 @@ body {
     font-family: "Open Sans", sans-serif
 }
 h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
 }
 h2 {
-    font-size: 1.7rem;
+    font-size: 1.9rem;
 }
 h3 {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
 }
 
 /* Navigation header*/
@@ -41,8 +41,6 @@ h3 {
 
 .nav-content {
     padding: 0 0.8rem;
-    display: flex;
-    flex-direction: row;
     align-items: center;
 }
 
@@ -71,21 +69,6 @@ h3 {
 .nav-left a:hover, .nav-right a:hover {
     background: rgb(100, 16, 60);
 }
-
-.nav-right {
-    display: flex;
-    flex-direction: row;
-    margin: 0 auto;
-    justify-content: flex-end;
-    flex-grow: 1;
-}
-
-.nav-right a {
-    display: flex;
-    height: 40px;
-    padding: 0 0.8rem;
-}
-
 .content {
     box-sizing: border-box;
     margin: 0 auto;
@@ -104,8 +87,10 @@ h3 {
     font-size: .8rem;
     color: gray;
 }
-pre code {
+code {
     font-family: "Fira Code Mono", sans-serif;
+    font-size: .75rem;
+    background: #f3f3f3
 }
 
 /* Articles List */
@@ -118,7 +103,6 @@ pre code {
     position: relative;
 }
 .article-title a {
-    font-size: 1rem;
     text-decoration: none;
     color: black
 }

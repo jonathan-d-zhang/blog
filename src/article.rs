@@ -1,9 +1,11 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
+use pulldown_cmark::{html, Options, Parser};
 use rocket::serde::json;
 use rocket::serde::{Deserialize, Serialize};
-use rocket::tokio::fs;
+use rocket::tokio;
 use rocket::tokio::io::AsyncReadExt;
 use std::io::Result as IoResult;
+use std::io::Write;
 use std::path::Path;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -29,10 +31,48 @@ impl Article {
         }
     }
 
+    pub fn compile_markdown(path: impl AsRef<Path>) -> IoResult<()> {
+        lazy_static! {
+            static ref OPTIONS: Options = {
+                let mut o = Options::empty();
+                o.insert(Options::ENABLE_STRIKETHROUGH);
+                o.insert(Options::ENABLE_TABLES);
+                o
+            };
+        }
+
+        let input = std::fs::read_to_string(path)?;
+
+        // skim off the metadata
+        let mut iter = input.splitn(2, '\n');
+        let title = iter.next().expect("Invalid Article Format");
+
+        let rest = iter.next().expect("Invalid Article Format");
+
+        let parser = Parser::new_ext(rest, *OPTIONS);
+        let mut output = String::new();
+        html::push_html(&mut output, parser);
+
+        let article = Article::new(title.to_string(), output, Utc::now().timestamp());
+
+        article.persist()
+    }
+
+    fn persist(&self) -> IoResult<()> {
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(Path::new("articles/json").join(format!("{}.json", self.filename)))?;
+
+        file.write_all(serde_json::to_string(self)?.as_bytes())?;
+
+        Ok(())
+    }
+
     pub async fn read_article(path: impl AsRef<Path>) -> IoResult<Self> {
-        let mut file = fs::OpenOptions::new()
+        let mut file = tokio::fs::OpenOptions::new()
             .read(true)
-            .open(Path::new("articles").join(path.as_ref().with_extension("json")))
+            .open(Path::new("articles/json").join(path.as_ref().with_extension("json")))
             .await?;
 
         let mut contents = String::new();
@@ -43,7 +83,7 @@ impl Article {
     }
 
     pub async fn read_articles() -> IoResult<Vec<Self>> {
-        let mut iter = fs::read_dir("articles").await?;
+        let mut iter = tokio::fs::read_dir("articles/json").await?;
         let mut articles = Vec::new();
 
         while let Ok(Some(entry)) = iter.next_entry().await {
@@ -59,7 +99,7 @@ impl Article {
         s.chars()
             .filter_map(|ch| match ch {
                 x if x.is_ascii_alphanumeric() => Some(x.to_ascii_lowercase()),
-                ' ' => Some('-'),
+                ' ' | '-' => Some('-'),
                 _ => None,
             })
             .collect()
@@ -67,7 +107,7 @@ impl Article {
 
     fn truncate_body(body: String) -> String {
         // manually iterate instead of using `take(120)` because we want to ignore
-        // html tags in our character count
+        // json tags in our character count
         let mut shortened = Vec::new();
         let mut in_brackets = false;
         let mut i = 0;

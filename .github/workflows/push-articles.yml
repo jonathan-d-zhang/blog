@@ -1,0 +1,60 @@
+name: push-articles
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'articles/**'
+jobs:
+  push-articles:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Setup Docker Buildx
+          id: buildx
+          uses: docker/setup-buildx-action@master
+        - name: Cache Docker Layers
+          uses: actions/cache@v2
+          with:
+            path: /tmp/.buildx-cache
+            key: ${{ runner.os }}-buildx-${{ github.sha }}
+            restore-keys: |
+              ${{ runner.os}}-buildx-
+        - name: Create Container
+          uses: docker/build-push-action@v2
+          with:
+            tags: blog-latest
+            load: true
+            builder: ${{ steps.buildx.outputs.name }}
+            cache-from: type=local,src=/tmp/.buildx-cache
+            cache-to: type=local,dest=/tmp/.buildx-cache
+        - name: Install AWS CLI
+          uses: unfor19/install-aws-cli-action@v1.0.3
+        - name: Configure AWS CLI
+          run: |
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws configure set region us-east-1
+        - name: Install Essentials
+          run: |
+            sudo apt-get update && sudo apt-get -y install curl jq
+            curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"
+            chmod +x /usr/local/bin/lightsailctl
+        - name: Push to Lightsail and Deploy
+          run: |
+            aws lightsail push-container-image --service-name blog --label blog-latest --image blog-latest
+            IMAGE_TAG=$(aws lightsail get-container-images --service blog | jq -r .containerImages[0].image)
+            aws lightsail create-container-service-deployment \
+              --service-name blog \
+              --containers "{
+                \"blog\": {
+                  \"image\": \"$IMAGE_TAG\",
+                  \"ports\": {
+                    \"80\": \"HTTP\"
+                    }
+                  }
+                }" \
+              --public-endpoint '{
+                "containerName": "blog",
+                "containerPort": 80
+                }'
+
