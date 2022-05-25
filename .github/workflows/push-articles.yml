@@ -9,6 +9,24 @@ jobs:
   push-articles:
     runs-on: ubuntu-latest
     steps:
+        - name: Setup Docker Buildx
+          id: buildx
+          uses: docker/setup-buildx-action@master
+        - name: Create Container
+          uses: docker/build-push-action@v2
+          with:
+            context: ./
+            file: ./Dockerfile
+            builder: ${{ steps.buildx.outputs.name }}
+            cache-from: type=local,src=/tmp/.buildx-cache
+            cache-to: type=local,dest=/tmp/.buildx-cache
+        - name: Cache Docker Layers
+          uses: actions/cache@v2
+          with:
+            path: /tmp/.buildx-cache
+            key: ${{ runner.os }}-buildx-${{ github.sha }}
+            restore-keys: |
+              ${{ runner.os}}-buildx-
         - name: Install AWS CLI
           uses: unfor19/install-aws-cli-action@v1.0.3
         - name: Configure AWS CLI
@@ -16,4 +34,6 @@ jobs:
             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws configure set region us-east-1
-            echo $(aws lightsail get-container-images --service-name blog)
+        - name: Push Container to Lightsail
+          run: |
+            docker images
