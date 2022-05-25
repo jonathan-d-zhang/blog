@@ -47,7 +47,7 @@ jobs:
               --service-name blog \
               --containers "{
                 \"blog\": {
-                  \"image\": "$IMAGE_TAG",
+                  \"image\": \"$IMAGE_TAG\",
                   \"ports\": {
                     \"80\": \"HTTP\"
                   }
