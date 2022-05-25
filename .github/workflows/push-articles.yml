@@ -54,7 +54,7 @@ jobs:
                   }
                 }" \
               --public-endpoint '{
-                "containerName": blog,
+                "containerName": "blog",
                 "containerPort": 80
                 }'
 
