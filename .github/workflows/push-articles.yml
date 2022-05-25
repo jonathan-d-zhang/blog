@@ -4,7 +4,7 @@ on:
 #    branches:
 #      - master
     paths:
-      - 'articles/'
+      - 'articles/**'
 jobs:
   push-articles:
     runs-on: ubuntu-latest
