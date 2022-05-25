@@ -50,6 +50,7 @@ jobs:
                   \"image\": \"$IMAGE_TAG\",
                   \"ports\": {
                     \"80\": \"HTTP\"
+                    }
                   }
                 }" \
               --public-endpoint '{
