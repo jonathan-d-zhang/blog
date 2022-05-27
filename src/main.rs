@@ -49,6 +49,7 @@ fn rocket() -> _ {
         )
         .mount("/styles", FileServer::from(relative!("styles")))
         .mount("/fonts", FileServer::from(relative!("fonts")))
+        .mount("/images", FileServer::from(relative!("images")))
         .attach(Template::fairing())
 }
 
