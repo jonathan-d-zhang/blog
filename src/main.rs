@@ -48,7 +48,6 @@ fn compile_markdown() -> IoResult<()> {
             .join(path.file_name().unwrap())
             .with_extension("json");
         if !html_path.exists() {
-            println!("{:?}", path);
             Article::compile_markdown(path)?
         }
     }
