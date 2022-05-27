@@ -29,6 +29,8 @@ async fn index() -> Result<Template, Status> {
 
 #[launch]
 fn rocket() -> _ {
+    let _ = std::fs::create_dir("articles/json");
+
     compile_markdown().unwrap();
 
     rocket::build()
