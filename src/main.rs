@@ -27,8 +27,17 @@ async fn index() -> Result<Template, Status> {
     Ok(Template::render("home", json!({ "articles": articles })))
 }
 
+#[cfg(debug_assertions)]
+fn hot_reload_articles() {
+    println!("Removing json directory.");
+    let _ = std::fs::remove_dir_all("articles/json").unwrap();
+}
+
 #[launch]
 fn rocket() -> _ {
+    #[cfg(debug_assertions)]
+    hot_reload_articles();
+
     let _ = std::fs::create_dir("articles/json");
 
     compile_markdown().unwrap();
@@ -44,13 +53,15 @@ fn rocket() -> _ {
 }
 
 fn compile_markdown() -> IoResult<()> {
+    println!("Compiling Markdown:");
     for entry in std::fs::read_dir("articles/md")? {
         let path = entry?.path();
         let html_path = Path::new("articles/json")
             .join(path.file_name().unwrap())
             .with_extension("json");
         if !html_path.exists() {
-            Article::compile_markdown(path)?
+            Article::compile_markdown(&path)?;
+            println!("   >> Compiled {:?}", path.file_name().unwrap());
         }
     }
 
