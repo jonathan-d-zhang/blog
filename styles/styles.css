@@ -94,6 +94,7 @@ h3 {
 /* Article */
 .article-text p {
     line-height: 200%;
+    margin-bottom: 1.8rem;
 }
 .upload-date {
     margin-bottom: 2.5rem;

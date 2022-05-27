@@ -113,10 +113,11 @@ impl Article {
     fn truncate_body(body: String) -> String {
         // manually iterate instead of using `take(120)` because we want to ignore
         // json tags in our character count
+        let first_line = body.splitn(2, '\n').next().unwrap().to_string();
         let mut shortened = Vec::new();
         let mut in_brackets = false;
         let mut i = 0;
-        for ch in body.trim_end().chars() {
+        for ch in first_line.trim_end().chars() {
             if i == 120 {
                 break;
             }
