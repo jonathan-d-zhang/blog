@@ -1,4 +1,5 @@
 Test Syntax Highlighting
+0
 
 ```rust
 fn main() {

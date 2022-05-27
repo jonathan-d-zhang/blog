@@ -44,8 +44,13 @@ impl Article {
         let input = std::fs::read_to_string(path)?;
 
         // skim off the metadata
-        let mut iter = input.splitn(2, '\n');
+        let mut iter = input.splitn(3, '\n');
         let title = iter.next().expect("Invalid Article Format");
+        let timestamp = iter
+            .next()
+            .expect("Invalid Article Format")
+            .parse()
+            .expect("Invalid Timestamp");
 
         let rest = iter.next().expect("Invalid Article Format");
 
@@ -53,7 +58,7 @@ impl Article {
         let mut output = String::new();
         html::push_html(&mut output, parser);
 
-        let article = Article::new(title.to_string(), output, Utc::now().timestamp());
+        let article = Article::new(title.to_string(), output, timestamp);
 
         article.persist()
     }

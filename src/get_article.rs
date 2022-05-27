@@ -12,7 +12,7 @@ pub async fn articles() -> IoResult<Template> {
     ))
 }
 
-#[get("/article/<path>")]
+#[get("/articles/<path>")]
 pub async fn article_page(path: &str) -> IoResult<Template> {
     let data = Article::read_article(path).await?;
 
