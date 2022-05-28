@@ -8,26 +8,25 @@
     <link rel="preload" href="/fonts/OpenSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-<div class="nav">
-    <div class="nav-content">
-        <div class="nav-left">
-            <a href="/">Home</a>
-            <a href="/articles">Articles</a>
-        </div>
-        <div class="nav-right">
-            <a href="/articles/about-me">About Me</a>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/languages/dockerfile.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <div class="nav">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a href="/">Home</a>
+                <a href="/articles">Articles</a>
+            </div>
+            <div class="nav-right">
+                <a href="/articles/about-me">About Me</a>
+            </div>
         </div>
     </div>
-</div>
     <div class="content">
-        <article class="article-text">
-            <h1>{{article.title}}</h1>
-            <div class="upload-date"><p>{{article.formatted_time}}</p></div>
-            {{{article.body}}}
-        </article>
+        <h1>{{article.title}}</h1>
+        <div class="upload-date"><p>{{article.formatted_time}}</p></div>
+        {{{article.body}}}
     </div>
 </body>
 </html>

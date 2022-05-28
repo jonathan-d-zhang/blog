@@ -39,14 +39,12 @@ h3 {
     align-self: stretch;
     margin-bottom: 2.5rem;
 }
-
 .nav-content {
     padding: 0 0.8rem;
     display: flex;
     flex-direction: row;
     align-items: center;
 }
-
 .nav-content a {
     font-family: "Roboto Slab", serif;
     font-size: .9rem;
@@ -54,7 +52,6 @@ h3 {
     color: white;
     align-items: center;
 }
-
 .nav-left {
     margin: 0 auto;
     display: flex;
@@ -62,13 +59,11 @@ h3 {
     align-items: center;
     font-size: 1rem;
 }
-
 .nav-left a {
     display: flex;
     padding: 0 0.8rem;
     height: 2.25rem;
 }
-
 .nav-left a:hover, .nav-right a:hover {
     background: rgb(100, 16, 60);
 }
@@ -79,7 +74,6 @@ h3 {
      justify-content: flex-end;
      flex-grow: 1;
  }
-
 .nav-right a {
     display: flex;
     height: 40px;
@@ -89,11 +83,14 @@ h3 {
     box-sizing: border-box;
     margin: 0 auto 3rem;
     padding: 0 15px;
-    max-width: min(760px, 100%);
 }
 
 /* Article */
-.article-text p {
+.content > * {
+    max-width: min(760px, 100%);
+    margin: 0 auto 1.8rem;
+}
+.content p {
     line-height: 200%;
     margin-bottom: 1.8rem;
 }
@@ -109,13 +106,21 @@ code {
     font-size: .75rem;
     background: #f3f3f3
 }
-
 ul a {
     color: #1b1f23;
 }
-
 ul a:visited {
     color: #1b1f23;
+}
+.content img {
+    display: block;
+    max-width: calc(min(760px, 100%));
+    padding-bottom: 1.2rem;
+}
+@media (min-width: 1200px) {
+    .content img {
+        max-width: calc(min(1200px, 70vw))
+    }
 }
 
 /* Articles List */
