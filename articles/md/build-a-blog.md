@@ -4,12 +4,13 @@ Build a Blog
 Why do I have a blog? How did I make it?
 
 ### Table of Contents
- - [Senior Project](#senior-project)
+ - [What Is Senior Project](#what-is-senior-project)
  - [Creating and Reading Articles](#creating-and-reading-articles)
  - [Using Docker](#using-docker)
  - [Images?](#images)
+ - [Article Previews](#article-previews)
 
-## Senior Project <a id="senior-project" class="anchor"></a>
+## What Is Senior Project? <a id="what-is-senior-project" class="anchor"></a>
 At my high school, in order to graduate, each senior must complete a Senior Project with the help of a mentor. For 15 days, students do "an experiential exploration of a topic of interest to the individual student".
 
 For my project, I wanted to make a website. Prior to making this blog, I had no experience with web development, so this was a nice way to see what it's like.
@@ -25,7 +26,7 @@ The process of deploying new articles to the website was not as easy as I though
 
 The next idea was to not upload through the website, but rather SSH into the web server and copy over the articles. This method bypasses the security issue of the previous method, which is great. The only problem is that you don't have SSH access into Lightsail Containers, so this method can't work.
 
-The method I finally settled on was to simply create a new container with the new article inside, and push that to Lightsail. This method had none of the security issues of the first method, since I offload all secrets management to Github Secrets, and it could be entirely automated with GitHub Actions and Lightsail's CLI. The only annoying thing was writing a JSON string inline into a command, as shown by my commit history:
+The method I finally settled on was to simply create a new container with the new article inside, and push that to Lightsail. This method had none of the security issues of the first method, since I offload all secrets management to Github Secrets, and it could be entirely automated with GitHub Actions and Lightsail's CLI. The only annoying thing was writing the entire deployment configuration inline.
 
 ```plaintext
 775ee90 Forgot quotes
@@ -37,7 +38,6 @@ a567127 Forgot quotes
 1be7843 Install lightsailctl and try again
 df52a61 Try pushing to lightsail
 7464a5c Actually load the docker image
-9f180db Test if docker container builds properly
 da8ecdf Test if docker container builds properly
 9052818 Add service name
 371dddc Maybe this will work?
@@ -119,7 +119,7 @@ EXPOSE 80
 
 In Docker, each command creates a "layer", which is cached. Docker only updates a layer if it's modified. If the `Cargo.toml` is not modified, then the dependencies couldn't have changed, so they don't need to be rebuilt. This reduces the compile time by almost a factor of 10.
 
-I still have the space issue to deal with, which I fixed with a multi-stage build.
+I still had the space issue to deal with, which I fixed with a multi-stage build.
 
 ```Dockerfile
 FROM rust:1.54 as build
@@ -140,13 +140,11 @@ CMD ["./app"]
 
 EXPOSE 80
 ```
-Now instead of using having all the dependencies and build tools in the image, I create a new image and only copy what is needed for the app to run. Here's a screenshot showing the difference.
+Now instead of using having all the dependencies and build tools in the image, I create a new image and only copy what is needed for the app to run. Here's a screenshot showing the difference. `<none>` is the image from the first `Dockerfile`, and `blog` is the image from the last `Dockerfile`
 
 <img src="/images/build-a-blog/docker-images.png" alt="screenshot of docker desktop showing change in docker image size">
 
-After these changes, `docker build` runs much faster (on subsequent runs), and also takes much less space.
-
-🎉
+After these changes, `docker build` runs much faster (on subsequent runs), and also takes much less space 🎉.
 
 ## Images <a id="images" class="anchor"></a>
 Unfortunately, the syntax for inserting an image and creating a hyperlink in markdown is the same,
@@ -164,6 +162,60 @@ results in this image
 
 <img src="/images/build-a-blog/docker-images.png" alt="screenshot of docker desktop showing change in docker image size">
 
-It's just slightly more annoying.
+Slightly annoying, but oh well.
 
-## Syntax highlighting (maybe)
+## Article Previews <a id="article-previews" class="anchor"></a>
+
+For the articles page, I wanted to put a quick intro for each article, using a snippet of the article itself. This was actually pretty annoying (and it still doesn't work that well). Everything happens in this function.
+
+```rust
+fn truncate_body(body: &str) -> String {
+    // manually iterate instead of using `take(120)` because we want to ignore
+    // html tags in our character count
+    let first_line = body.splitn(2, '\n').next().unwrap().to_string();
+    let mut shortened = Vec::new();
+    let mut in_brackets = false;
+    let mut i = 0;
+    for ch in first_line.trim_end().chars() {
+        if i == 120 {
+            break;
+        }
+        // this isn't very robust, but we can just try to avoid writing <>
+        // in the first 120 chars
+        match ch {
+            '<' => in_brackets = true,
+            '>' => in_brackets = false,
+            _ => {
+                if !in_brackets {
+                    i += 1;
+                }
+            }
+        }
+        shortened.push(ch);
+    }
+
+    if shortened.len() < 120 {
+        // if it's less than 120 chars, we didn't truncate anything,
+        // so we know it's valid
+    } else if let Some(i) = shortened
+        .iter()
+        .rev()
+        .position(|&ch| ch == '.' || ch == '!' || ch == '?')
+    {
+        // truncate to the last complete sentence
+        // assume these punctuation marks will end a sentence
+        shortened.truncate(shortened.len() - i);
+    } else {
+        // assume that the first 120 chars are not one big word
+        // pop chars until we reach a space
+        while let Some(b) = shortened.pop() {
+            if b == ' ' {
+                break;
+            }
+        }
+        shortened.extend("...".chars());
+    }
+
+    shortened.into_iter().collect()
+}
+```
