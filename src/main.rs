@@ -24,7 +24,10 @@ async fn index() -> Result<Template, Status> {
         .map_err(|_| Status::InternalServerError)
         .unwrap();
 
-    Ok(Template::render("home", json!({ "articles": articles })))
+    Ok(Template::render(
+        "home",
+        json!({ "articles": articles.into_iter().take(3).collect::<Vec<_>>() }),
+    ))
 }
 
 #[cfg(debug_assertions)]
