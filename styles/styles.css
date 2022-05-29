@@ -86,7 +86,7 @@ h3 {
 }
 
 /* Article */
-.content > * {
+.content > *:not(pre) {
     max-width: min(760px, 100%);
     margin: 0 auto 1.8rem;
 }
@@ -103,8 +103,11 @@ h3 {
 }
 code {
     font-family: "Fira Code Mono", sans-serif;
+    background: #f3f3f3;
+    max-width: min(760px, 100%);
+    margin: 0 auto;
     font-size: .75rem;
-    background: #f3f3f3
+    border-radius: 4px;
 }
 ul a {
     color: #1b1f23;

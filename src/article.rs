@@ -137,7 +137,7 @@ impl Article {
 
         if shortened.len() < 120 {
             // if it's less than 120 chars, we didn't truncate anything,
-            // so we know it's valid
+            // so we know don't need to do any more work
         } else if let Some(i) = shortened
             .iter()
             .rev()
@@ -149,8 +149,8 @@ impl Article {
         } else {
             // assume that the first 120 chars are not one big word
             // pop chars until we reach a space
-            while let Some(b) = shortened.pop() {
-                if b == ' ' {
+            while let Some(ch) = shortened.pop() {
+                if ch == ' ' {
                     break;
                 }
             }
