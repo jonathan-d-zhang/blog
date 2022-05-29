@@ -105,7 +105,7 @@ code {
     font-family: "Fira Code Mono", sans-serif;
     background: #f3f3f3;
     max-width: min(760px, 100%);
-    margin: 0 auto;
+    margin: 0 auto 1.8rem;
     font-size: .75rem;
     border-radius: 4px;
 }

@@ -224,8 +224,6 @@ fn truncate_body(body: &str) -> String {
 
 Essentially, this just takes the first line of the article and truncates it to less than 120 chars. This works *ok*, but there are still tons of somewhat avoidable bugs.
 
-For example, the function could potentially 
-
 I just need to avoid `<` or `>`, codeblocks, and punctuation that isn't an exclamation point, period, or question mark. It's not that bad, but it definitely could be better.
 
 The final result, in my opinion, looks pretty good, so I probably won't fix it until I run into an issue with it.
