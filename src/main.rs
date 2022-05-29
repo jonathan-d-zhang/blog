@@ -24,11 +24,25 @@ async fn index() -> Result<Template, Status> {
         .map_err(|_| Status::InternalServerError)
         .unwrap();
 
-    Ok(Template::render("home", json!({ "articles": articles })))
+    Ok(Template::render(
+        "home",
+        json!({ "articles": articles.into_iter().take(3).collect::<Vec<_>>() }),
+    ))
+}
+
+#[cfg(debug_assertions)]
+fn hot_reload_articles() {
+    println!("Removing json directory.");
+    let _ = std::fs::remove_dir_all("articles/json").unwrap();
 }
 
 #[launch]
 fn rocket() -> _ {
+    #[cfg(debug_assertions)]
+    hot_reload_articles();
+
+    let _ = std::fs::create_dir("articles/json");
+
     compile_markdown().unwrap();
 
     rocket::build()
@@ -38,18 +52,20 @@ fn rocket() -> _ {
         )
         .mount("/styles", FileServer::from(relative!("styles")))
         .mount("/fonts", FileServer::from(relative!("fonts")))
+        .mount("/images", FileServer::from(relative!("images")))
         .attach(Template::fairing())
 }
 
 fn compile_markdown() -> IoResult<()> {
+    println!("Compiling Markdown:");
     for entry in std::fs::read_dir("articles/md")? {
         let path = entry?.path();
         let html_path = Path::new("articles/json")
             .join(path.file_name().unwrap())
             .with_extension("json");
         if !html_path.exists() {
-            println!("{:?}", path);
-            Article::compile_markdown(path)?
+            Article::compile_markdown(&path)?;
+            println!("   >> Compiled {:?}", path.file_name().unwrap());
         }
     }
 

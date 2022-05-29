@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'articles/**'
 jobs:
   push-articles:
     runs-on: ubuntu-latest
@@ -18,7 +16,7 @@ jobs:
             path: /tmp/.buildx-cache
             key: ${{ runner.os }}-buildx-${{ github.sha }}
             restore-keys: |
-              ${{ runner.os}}-buildx-
+              ${{ runner.os }}-buildx-
         - name: Create Container
           uses: docker/build-push-action@v2
           with:

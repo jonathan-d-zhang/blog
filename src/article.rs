@@ -44,8 +44,13 @@ impl Article {
         let input = std::fs::read_to_string(path)?;
 
         // skim off the metadata
-        let mut iter = input.splitn(2, '\n');
+        let mut iter = input.splitn(3, '\n');
         let title = iter.next().expect("Invalid Article Format");
+        let timestamp = iter
+            .next()
+            .expect("Invalid Article Format")
+            .parse()
+            .expect("Invalid Timestamp");
 
         let rest = iter.next().expect("Invalid Article Format");
 
@@ -53,7 +58,7 @@ impl Article {
         let mut output = String::new();
         html::push_html(&mut output, parser);
 
-        let article = Article::new(title.to_string(), output, Utc::now().timestamp());
+        let article = Article::new(title.to_string(), output, timestamp);
 
         article.persist()
     }
@@ -107,11 +112,12 @@ impl Article {
 
     fn truncate_body(body: String) -> String {
         // manually iterate instead of using `take(120)` because we want to ignore
-        // json tags in our character count
+        // html tags in our character count
+        let first_line = body.splitn(2, '\n').next().unwrap().to_string();
         let mut shortened = Vec::new();
         let mut in_brackets = false;
         let mut i = 0;
-        for ch in body.trim_end().chars() {
+        for ch in first_line.trim_end().chars() {
             if i == 120 {
                 break;
             }
@@ -131,7 +137,7 @@ impl Article {
 
         if shortened.len() < 120 {
             // if it's less than 120 chars, we didn't truncate anything,
-            // so we know it's valid
+            // so we know don't need to do any more work
         } else if let Some(i) = shortened
             .iter()
             .rev()
@@ -143,8 +149,8 @@ impl Article {
         } else {
             // assume that the first 120 chars are not one big word
             // pop chars until we reach a space
-            while let Some(b) = shortened.pop() {
-                if b == ' ' {
+            while let Some(ch) = shortened.pop() {
+                if ch == ' ' {
                     break;
                 }
             }

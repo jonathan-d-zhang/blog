@@ -1,9 +1,0 @@
-services:
-  blog:
-    build: .
-    volumes:
-      - type: bind
-        source: ./articles
-        target: /articles
-    ports:
-      - 8000:80
