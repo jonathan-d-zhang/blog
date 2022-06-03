@@ -45,7 +45,7 @@ pub fn compile_markdown(path: impl AsRef<Path>) -> IoResult<()> {
 
 pub fn replace_latex(input: &mut String) {
     lazy_static! {
-        static ref PAT: Regex = Regex::new(r"\$\$(.+)\$\$").unwrap();
+        static ref PAT: Regex = Regex::new(r"\$\$(.+?)\$\$").unwrap();
     }
 
     // this is probably the dumbest way to do this, but it should be fast enough
