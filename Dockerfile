@@ -6,10 +6,8 @@ WORKDIR /blog
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 
-
 FROM base as dev-build
 
-RUN rustup component add clippy
 RUN cargo build
 RUN rm src/*.rs
 
@@ -18,6 +16,10 @@ COPY src src
 RUN rm target/debug/deps/blog*
 
 RUN cargo build
+
+FROM dev-build as clippy
+
+RUN rustup component add clippy
 RUN cargo clippy
 
 FROM debian:buster-slim as dev
