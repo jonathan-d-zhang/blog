@@ -8,6 +8,8 @@ COPY Cargo.lock Cargo.lock
 
 FROM base as dev-build
 
+RUN rustup component add clippy
+
 RUN cargo build
 RUN rm src/*.rs
 
@@ -16,11 +18,7 @@ COPY src src
 RUN rm target/debug/deps/blog*
 
 RUN cargo build
-
-FROM dev-build as clippy
-
-RUN rustup component add clippy
-RUN cargo clippy
+RUN cargo clippy -p blog -- --no-deps -D clippy::all
 
 FROM debian:buster-slim as dev
 
@@ -29,8 +27,6 @@ COPY --from=dev-build /blog/target/debug/blog ./app
 COPY images /blog/images
 COPY styles /blog/styles
 COPY fonts /blog/fonts
-COPY templates templates
-COPY articles articles
 COPY Rocket.toml Rocket.toml
 
 CMD ["./app"]

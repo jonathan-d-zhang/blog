@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "8000:80"
+    tty: true
+    volumes:
+      - type: bind
+        source: ./articles/md
+        target: /articles/md
+      - type: bind
+        source: ./templates
+        target: /templates
+    restart: unless-stopped
+    environment:
+      - RUST_BACKTRACE=1

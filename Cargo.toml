@@ -13,6 +13,10 @@ regex = "1"
 chrono = "0.4"
 lazy_static = "1.4.0"
 
+[dependencies.adler]
+version = "1.0"
+features = ["std"]
+
 [dependencies.rocket]
 version = "0.5.0-rc.1"
 features = ["json"]

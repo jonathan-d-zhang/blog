@@ -1,5 +1,4 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
-use katex;
 use pulldown_cmark::{html, Options, Parser};
 use regex::Regex;
 use rocket::serde::json;
