@@ -3,6 +3,6 @@ form = "128KiB"
 string = "1B"
 bytes = "1B"
 
-[release]
+[global]
 address = "0.0.0.0"
 port = 80

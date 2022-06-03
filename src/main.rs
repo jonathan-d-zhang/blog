@@ -34,6 +34,7 @@ async fn index() -> Result<Template, Status> {
 fn hot_reload_articles() {
     println!("Removing json directory.");
     let _ = std::fs::remove_dir_all("articles/json").unwrap();
+    let _ = std::fs::create_dir("articles/json");
 }
 
 #[launch]
