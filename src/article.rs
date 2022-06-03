@@ -1,5 +1,7 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
+use katex;
 use pulldown_cmark::{html, Options, Parser};
+use regex::Regex;
 use rocket::serde::json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio;
@@ -7,6 +9,52 @@ use rocket::tokio::io::AsyncReadExt;
 use std::io::Result as IoResult;
 use std::io::Write;
 use std::path::Path;
+
+pub fn compile_markdown(path: impl AsRef<Path>) -> IoResult<()> {
+    lazy_static! {
+        static ref OPTIONS: Options = {
+            let mut o = Options::empty();
+            o.insert(Options::ENABLE_STRIKETHROUGH);
+            o.insert(Options::ENABLE_TABLES);
+            o
+        };
+    }
+
+    let input = std::fs::read_to_string(path)?;
+
+    // skim off the metadata
+    let mut iter = input.splitn(3, '\n');
+    let title = iter.next().expect("Invalid Article Format");
+    let timestamp = iter
+        .next()
+        .expect("Invalid Article Format")
+        .parse()
+        .expect("Invalid Timestamp");
+
+    let mut rest = iter.next().expect("Invalid Article Format").to_string();
+    replace_latex(&mut rest);
+
+    let parser = Parser::new_ext(&rest, *OPTIONS);
+    let mut output = String::new();
+    html::push_html(&mut output, parser);
+
+    let article = Article::new(title.to_string(), output, timestamp);
+
+    article.persist()
+}
+
+pub fn replace_latex(input: &mut String) {
+    lazy_static! {
+        static ref PAT: Regex = Regex::new(r"\$\$(.+)\$\$").unwrap();
+    }
+
+    // this is probably the dumbest way to do this, but it should be fast enough
+    // n^3 :grimace:
+    while let Some(m) = (*PAT).find(&input.clone()) {
+        let s = m.as_str().trim_matches('$');
+        input.replace_range(m.range(), &katex::render(s).expect("Invalid Latex"));
+    }
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(crate = "rocket::serde")]
@@ -29,38 +77,6 @@ impl Article {
             formatted_time: Self::parse_timestamp(timestamp),
             filename: Self::filename(title),
         }
-    }
-
-    pub fn compile_markdown(path: impl AsRef<Path>) -> IoResult<()> {
-        lazy_static! {
-            static ref OPTIONS: Options = {
-                let mut o = Options::empty();
-                o.insert(Options::ENABLE_STRIKETHROUGH);
-                o.insert(Options::ENABLE_TABLES);
-                o
-            };
-        }
-
-        let input = std::fs::read_to_string(path)?;
-
-        // skim off the metadata
-        let mut iter = input.splitn(3, '\n');
-        let title = iter.next().expect("Invalid Article Format");
-        let timestamp = iter
-            .next()
-            .expect("Invalid Article Format")
-            .parse()
-            .expect("Invalid Timestamp");
-
-        let rest = iter.next().expect("Invalid Article Format");
-
-        let parser = Parser::new_ext(rest, *OPTIONS);
-        let mut output = String::new();
-        html::push_html(&mut output, parser);
-
-        let article = Article::new(title.to_string(), output, timestamp);
-
-        article.persist()
     }
 
     fn persist(&self) -> IoResult<()> {
@@ -118,7 +134,7 @@ impl Article {
         let mut in_brackets = false;
         let mut i = 0;
         for ch in first_line.trim_end().chars() {
-            if i == 120 {
+            if i == 200 {
                 break;
             }
             // this isn't very robust, but we can just try to avoid writing <>
@@ -135,7 +151,7 @@ impl Article {
             shortened.push(ch);
         }
 
-        if shortened.len() < 120 {
+        if shortened.len() < 200 {
             // if it's less than 120 chars, we didn't truncate anything,
             // so we know don't need to do any more work
         } else if let Some(i) = shortened

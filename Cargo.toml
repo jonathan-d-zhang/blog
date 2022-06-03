@@ -8,6 +8,8 @@ edition = "2018"
 [dependencies]
 serde_json = "1.0"
 pulldown-cmark = "0.9.1"
+katex = "0.4"
+regex = "1"
 chrono = "0.4"
 lazy_static = "1.4.0"
 

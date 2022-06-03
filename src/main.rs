@@ -38,10 +38,10 @@ fn hot_reload_articles() {
 
 #[launch]
 fn rocket() -> _ {
+    let _ = std::fs::create_dir("articles/json");
+
     #[cfg(debug_assertions)]
     hot_reload_articles();
-
-    let _ = std::fs::create_dir("articles/json");
 
     compile_markdown().unwrap();
 
@@ -64,7 +64,7 @@ fn compile_markdown() -> IoResult<()> {
             .join(path.file_name().unwrap())
             .with_extension("json");
         if !html_path.exists() {
-            Article::compile_markdown(&path)?;
+            article::compile_markdown(&path)?;
             println!("   >> Compiled {:?}", path.file_name().unwrap());
         }
     }
