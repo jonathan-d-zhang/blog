@@ -22,6 +22,8 @@ In STV, each voter ranks candidates in order of preference. If their preferred c
 
 The process is divided into rounds. In each round, a candidate might be elected or eliminated. If a candidate receives more than a certain quota, or threshold, of votes, they are elected. Otherwise, the candidate with the least votes is eliminated.
 
+Now for some vocab. A candidate is **hopeful** if they aren't elected and aren't eliminated. A candidate is **excluded** if they are elected or eliminated.
+
 Let's say for example that we have a group of 20 people, and they want to pick the best 2 programming languages. The choices are Rust (R), Python (P), Kotlin (K), and Go (G). They vote as follows
 
 ```plaintext
@@ -75,14 +77,109 @@ Go          6.7143
 
 Python exceeds the threshold, so it is elected, and we've chosen our two best languages.
 
+This example doesn't involve a tie, but if that were to happen, we would break the tie with a randomly decided tiebreak order.
+
 ## Header
 
 Wow, that was annoying to calculate, huh? Luckily, I know how to program!
 
 In my election, voters used Google Forms to submit ballots, so the data comes in CSV looking something like
 ```plaintext
-"1st Choice","2nd Choice","3rd Choice","4th Choice"
+"1","2","3","4"
 "A","B","C","D"
 "D","B","A","C"
 ...
+```
+
+This task is perfect for Pandas, so that's what we'll use. Start by doing some initialization: defining constants, loading data, etc.
+
+```py
+import math
+import random
+import pandas as pd
+
+N = 4
+candidates = ["A", "B", "C", "D", "E", "F"]
+
+tiebreak_order = random.sample(candidates, k=len(candidates))
+
+winners = []
+
+df = pd.read_csv("data.csv")
+n_voters = len(df)
+df = df.assign(weight=[1] * n_voters)
+
+quota = math.ceil(n_voters / (N + 1))
+
+hopefuls = df["1"].value_counts()
+```
+
+We add a new column, `weight`, to track the weight of each ballot through each round. The `hopefuls` Series will contain the votes of the candidates that aren't yet elected. We'll mutate this as we move through each round. In our example, voters could only choose 2 languages, so votes could be distributed at most once. For this election though, voters select up to 4 captains, so we need to track the weight of each individual ballot.
+
+Next we need to be able to transfer votes away from winning candidates or eliminated candidates.
+
+```py
+def transfer_ballots(away_from, eliminate):
+    r = 1
+    
+    away_from_voters = df[str(r)] == away_from
+    
+    if not eliminate:
+        df.loc[away_from_voters, "weight"] \
+            *= surplus.loc[away_from] / hopefuls.loc[away_from]
+```
+
+First, we adjust the weight of each ballot. The new weight is just the old weight multiplied by the surplus fraction. We use `r` will keep track of what column we're currently checking.
+
+
+```py
+    ballots = df.loc[away_from_voters]0
+    while True:
+        if r == N:
+            break
+        
+        cur_column = ballots[str(r + 1)]
+        isin = cur_column.isin(hopefuls.keys())
+        
+        t = ballots.loc[isin].groupby(str(r + 1)).sum()
+        hopefuls[t["weight"].index] += t["weight"]
+        
+        if isin.all():
+            break
+
+        ballots = ballots[~isin]
+        r += 1
+```
+
+The two parameters, `away_from` and `eliminate`, tell us who to transfer ballots away from and whether this candidate is eliminated or elected. In our example, we didn't encounter the case where we needed to transfer a ballot, but the next candidate on the ballot was excluded.
+
+
+
+```py
+while len(winners) < N:
+    greater_than_quota = hopefuls >= quota
+    pending = hopefuls.loc[greater_than_quota]
+    if greater_than_quota.any():
+        surplus = pending - quota
+        
+        if len(winners) + len(pending) == N:
+            winners.extend(pending.keys())
+
+        highest = sorted(
+            surplus.loc[surplus == surplus.max()].keys(), key=tiebreak_order.index
+        )[0]
+        
+        winners.append(highest)
+        transfer_ballots(highest, eliminate=False)
+        hopefuls.drop(highest, inplace=True)
+    else:
+        lowest = sorted(
+            hopefuls.loc[hopefuls == hopefuls.min()].keys(), key=tiebreak_order.index
+        )[0]
+
+        transfer_ballots(lowest, eliminate=True)
+        hopefuls.drop(lowest, inplace=True)
+        
+        if len(winners) + len(pending) + len(hopefuls) <= N:
+            winners.extend(hopefuls.keys())
 ```
