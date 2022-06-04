@@ -13,6 +13,9 @@ services:
       - type: bind
         source: ./templates
         target: /templates
+      - type: bind
+        source: ./styles
+        target: /blog/styles
     restart: unless-stopped
     environment:
       - RUST_BACKTRACE=1
