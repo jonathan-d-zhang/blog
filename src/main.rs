@@ -89,5 +89,7 @@ fn compile_markdown() -> IoResult<()> {
         }
     }
 
+    println!("Finished compiling Markdown");
+
     Ok(())
 }

@@ -17,6 +17,6 @@ services:
       - type: bind
         source: ./styles
         target: /blog/styles
-    restart: unless-stopped
+    restart: on-failure
     environment:
       - RUST_BACKTRACE=1

@@ -1,7 +1,7 @@
 [package]
 name = "blog"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -18,8 +18,12 @@ version = "1.0"
 features = ["std"]
 
 [dependencies.rocket]
-version = "0.5.0-rc.1"
+version = "0.5.0-rc.2"
 features = ["json"]
+
+[dependencies.rocket_db_pools]
+version = "0.1.0-rc.2"
+features = ["deadpool_postgres"]
 
 [dependencies.rocket_dyn_templates]
 version = "0.1.0-rc.1"

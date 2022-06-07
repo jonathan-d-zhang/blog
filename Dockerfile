@@ -1,4 +1,4 @@
-FROM rust:1.54 as base
+FROM rust:1.61 as base
 
 RUN USER=root cargo new --bin blog
 WORKDIR /blog
@@ -14,7 +14,7 @@ COPY src src
 RUN rm target/release/deps/blog*
 RUN cargo build --release
 
-FROM debian:buster-slim as prod
+FROM debian:bullseye-slim as prod
 
 COPY --from=base /blog/target/release/blog ./app
 

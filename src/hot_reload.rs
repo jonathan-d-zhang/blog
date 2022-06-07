@@ -58,7 +58,7 @@ impl FileTracker {
             // events. `rocket` relies on the `notify` crate, which tracks INotify events.
             // So it can't auto reload templates. Instead, just restart the process to reload templates.
             // Rocket doesn't give us access to the current Handlebars instance, so we can't reload them manually.
-            std::process::exit(-1);
+            std::process::exit(1);
         } else {
             false
         }

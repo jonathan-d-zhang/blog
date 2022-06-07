@@ -128,7 +128,7 @@ impl Article {
     fn truncate_body(body: String) -> String {
         // manually iterate instead of using `take(120)` because we want to ignore
         // html tags in our character count
-        let first_line = body.splitn(2, '\n').next().unwrap().to_string();
+        let first_line = body.split('\n').next().unwrap().to_string();
         let mut shortened = Vec::new();
         let mut in_brackets = false;
         let mut i = 0;
