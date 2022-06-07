@@ -7,6 +7,9 @@ extern crate lazy_static;
 #[macro_use]
 extern crate serde_json;
 
+#[macro_use]
+extern crate log;
+
 use crate::article::Article;
 use rocket::fs::{relative, FileServer};
 use rocket::http::Status;
@@ -54,6 +57,8 @@ async fn index() -> Result<Template, Status> {
 
 #[launch]
 fn rocket() -> _ {
+    env_logger::init();
+
     let _ = fs::create_dir("articles/json");
 
     compile_markdown().unwrap();
@@ -77,7 +82,7 @@ fn rocket() -> _ {
 }
 
 fn compile_markdown() -> IoResult<()> {
-    println!("Compiling Markdown:");
+    info!("Compiling Markdown:");
     for entry in fs::read_dir("articles/md")? {
         let path = entry?.path();
         let html_path = Path::new("articles/json")
@@ -85,11 +90,11 @@ fn compile_markdown() -> IoResult<()> {
             .with_extension("json");
         if !html_path.exists() {
             article::compile_markdown(&path)?;
-            println!("   >> Compiled {:?}", path.file_name().unwrap());
+            info!("   >> Compiled {:?}", path.file_name().unwrap());
         }
     }
 
-    println!("Finished compiling Markdown");
+    info!("Finished compiling Markdown");
 
     Ok(())
 }

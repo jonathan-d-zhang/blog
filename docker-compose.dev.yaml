@@ -20,3 +20,9 @@ services:
     restart: on-failure
     environment:
       - RUST_BACKTRACE=1
+      - RUST_LOG=info
+
+#  grafana:
+#    image: grafana/grafana-oss:8.2.0
+#    ports:
+#      - "3000:3000"

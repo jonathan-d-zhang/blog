@@ -44,7 +44,7 @@ pub async fn article_page(path: &str) -> IoResult<Template> {
 pub async fn article_page(path: &str, file_tracker: &State<FileTracker>) -> IoResult<Template> {
     file_tracker.check_templates();
     if file_tracker.check_articles() {
-        println!("Detected changes in article, recompiling markdown");
+        info!("Detected changes in article, recompiling markdown");
         use std::fs::{create_dir, remove_dir_all};
         remove_dir_all("articles/json").unwrap();
         create_dir("articles/json").unwrap();

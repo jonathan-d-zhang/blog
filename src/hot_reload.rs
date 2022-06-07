@@ -53,7 +53,7 @@ impl FileTracker {
         if new != self.templates_hash.load(Ordering::Relaxed) {
             self.templates_hash.store(new, Ordering::Relaxed);
 
-            println!("Detected changes in template, restarting process");
+            info!("Detected changes in template, restarting process");
             // For windows development, bind mounts in docker don't send INotify
             // events. `rocket` relies on the `notify` crate, which tracks INotify events.
             // So it can't auto reload templates. Instead, just restart the process to reload templates.
