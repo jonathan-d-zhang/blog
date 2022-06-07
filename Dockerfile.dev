@@ -6,25 +6,27 @@ WORKDIR /blog
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 
-RUN cargo build --release
+RUN rustup component add clippy
+
+RUN cargo build
 RUN rm src/*.rs
 
 COPY src src
 
-RUN rm target/release/deps/blog*
-RUN cargo build --release
+RUN rm target/debug/deps/blog*
 
-FROM debian:buster-slim as prod
+RUN cargo build
+RUN cargo clippy -p blog -- --no-deps -D clippy::all
 
-COPY --from=base /blog/target/release/blog ./app
+FROM debian:buster-slim as dev
+
+COPY --from=base /blog/target/debug/blog ./app
 
 COPY Rocket.toml Rocket.toml
 COPY images /blog/images
 COPY fonts /blog/fonts
 COPY styles /blog/styles
-COPY templates templates
-COPY articles articles
 
 CMD ["./app"]
 
-EXPOSE 80
+EXPOSE 8000
