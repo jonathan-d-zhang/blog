@@ -4,7 +4,12 @@ services:
       context: .
       target: prod
     ports:
-      - "80:80"
+      - "443:80"
+    volumes:
+        - type: bind
+          source: /etc/letsencrypt/archive/savagepastaman.com
+          target: /etc/ssl/
     tty: true
     environment:
       - RUST_LOG=error
+      - ROCKET_TLS={certs=/etc/ssl/fullchain1.pem,key=/etc/ssl/privkey1.pem}

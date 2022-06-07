@@ -1,7 +1,5 @@
 [global.limits]
 form = "128KiB"
-string = "1B"
-bytes = "1B"
 
 [global]
 address = "0.0.0.0"

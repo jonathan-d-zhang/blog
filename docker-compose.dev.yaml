@@ -20,7 +20,7 @@ services:
     restart: on-failure
     environment:
       - RUST_BACKTRACE=1
-      - RUST_LOG=info
+      - RUST_LOG=trace,handlebars=info
 
 #  grafana:
 #    image: grafana/grafana-oss:8.2.0
