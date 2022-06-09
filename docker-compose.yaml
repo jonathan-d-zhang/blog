@@ -1,15 +1,30 @@
+version: "3.9"
+
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-file: "5"
+      max-size: "10m"
+
 services:
-  app:
-    build:
-      context: .
-      target: prod
-    ports:
-      - "443:80"
+  blog:
+    <<: *logging
+
+  prometheus:
+    image: prom/prometheus
     volumes:
-        - type: bind
-          source: /etc/letsencrypt/archive/savagepastaman.com
-          target: /etc/ssl/
-    tty: true
-    environment:
-      - RUST_LOG=error
-      - ROCKET_TLS={certs=/etc/ssl/fullchain1.pem,key=/etc/ssl/privkey1.pem}
+      - type: bind
+        source: ./prometheus
+        target: /etc/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+    depends_on:
+      - app
+
+  grafana:
+    image: grafana/grafana-oss:8.2.0
+    ports:
+      - "3000:3000"

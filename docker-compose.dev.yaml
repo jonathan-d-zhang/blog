@@ -1,16 +1,7 @@
 version: "3.9"
 
-x-logging: &logging
-  logging:
-    driver: "json-file"
-    options:
-      max-file: "5"
-      max-size: "10m"
-
-
 services:
   blog:
-    << : *logging
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -29,30 +20,6 @@ services:
         source: ./styles
         target: /blog/styles
     restart: on-failure
-#    healthcheck:
-#      test: ["CMD-SHELL", "curl -f http://0.0.0.0:8000 || exit 1"]
-#      interval: 2s
-#      retries: 5
     environment:
       - RUST_BACKTRACE=1
       - RUST_LOG=info
-
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - type: bind
-        source: ./prometheus
-        target: /etc/prometheus
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yaml"
-    ports:
-      - "9090:9090"
-    depends_on:
-      - app
-#      app:
-#        condition: service_healthy
-
-  grafana:
-    image: grafana/grafana-oss:8.2.0
-    ports:
-      - "3000:3000"
