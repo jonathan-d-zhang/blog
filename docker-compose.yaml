@@ -12,7 +12,7 @@ services:
     <<: *logging
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:2.36.0
     volumes:
       - type: bind
         source: ./prometheus
