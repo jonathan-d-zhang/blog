@@ -1,0 +1,6 @@
+scrape_configs:
+  - job_name: "blog"
+    scrape_interval: 5s
+    scrape_timeout: 2s
+    static_configs:
+      - targets: ["blog:8000"]

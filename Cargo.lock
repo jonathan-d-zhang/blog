@@ -182,6 +182,7 @@ dependencies = [
  "rocket",
  "rocket_db_pools",
  "rocket_dyn_templates",
+ "rocket_prometheus",
  "serde_json",
 ]
 
@@ -1450,6 +1451,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "prometheus"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cface98dfa6d645ea4c789839f176e4b072265d085bfcc48eaa8d137f58d3c39"
+dependencies = [
+ "cfg-if 1.0.0",
+ "fnv",
+ "lazy_static",
+ "memchr",
+ "parking_lot",
+ "thiserror",
+]
+
+[[package]]
 name = "pulldown-cmark"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1722,6 +1737,16 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "uncased",
+]
+
+[[package]]
+name = "rocket_prometheus"
+version = "0.10.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f3e547f8db5177f95b286e1ed335c86ee70927bb3a248aa38c8a9eacc890ed9"
+dependencies = [
+ "prometheus",
+ "rocket",
 ]
 
 [[package]]

@@ -14,6 +14,7 @@ use crate::article::Article;
 use rocket::fs::{relative, FileServer};
 use rocket::http::Status;
 use rocket_dyn_templates::Template;
+use rocket_prometheus::PrometheusMetrics;
 use std::fs;
 use std::io::Result as IoResult;
 use std::path::Path;
@@ -63,6 +64,8 @@ fn rocket() -> _ {
 
     compile_markdown().unwrap();
 
+    let prometheus = PrometheusMetrics::new();
+
     let mut r = rocket::build()
         .mount(
             "/",
@@ -71,7 +74,9 @@ fn rocket() -> _ {
         .mount("/styles", FileServer::from(relative!("styles")))
         .mount("/fonts", FileServer::from(relative!("fonts")))
         .mount("/images", FileServer::from(relative!("images")))
-        .attach(Template::fairing());
+        .attach(Template::fairing())
+        .attach(prometheus.clone())
+        .mount("/metrics", prometheus);
 
     #[cfg(debug_assertions)]
     if cfg!(debug_assertions) {

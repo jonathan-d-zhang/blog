@@ -3,4 +3,6 @@ form = "128KiB"
 
 [global]
 address = "0.0.0.0"
+
+[release]
 port = 80
