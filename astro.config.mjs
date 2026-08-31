@@ -18,21 +18,33 @@ export default defineConfig({
 	fonts: [
 		{
 			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
+			name: 'Berkeley Mono',
+			cssVariable: '--font-berkeley',
+			fallbacks: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
 			options: {
 				variants: [
 					{
-						src: ['./src/assets/fonts/atkinson-regular.woff'],
+						src: ['./src/assets/fonts/BerkeleyMonoNerdFont-Regular.woff2'],
 						weight: 400,
 						style: 'normal',
 						display: 'swap',
 					},
 					{
-						src: ['./src/assets/fonts/atkinson-bold.woff'],
+						src: ['./src/assets/fonts/BerkeleyMonoNerdFont-Bold.woff2'],
 						weight: 700,
 						style: 'normal',
+						display: 'swap',
+					},
+					{
+						src: ['./src/assets/fonts/BerkeleyMonoNerdFont-Italic.woff2'],
+						weight: 400,
+						style: 'italic',
+						display: 'swap',
+					},
+					{
+						src: ['./src/assets/fonts/BerkeleyMonoNerdFont-BoldItalic.woff2'],
+						weight: 700,
+						style: 'italic',
 						display: 'swap',
 					},
 				],
