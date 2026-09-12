@@ -5,21 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Personal blog built on the Astro blog starter, deployed to GitHub Pages at
 `https://jonathan-d-zhang.github.io/blog`. Posts are Markdown/MDX with LaTeX support.
 
-## Node version
-
-Astro 7 requires node `>=22.12.0`. The machine default is 22.11.0, and `npm run build`
-picks up the default even after `nvm use` — it fails with
-`Node.js v22.11.0 is not supported by Astro!`. Either run `nvm alias default 22.23.2`
-once, or invoke the binary directly:
-
-```sh
-export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
-node ./node_modules/astro/bin/astro.mjs build
-```
-
-If a build dies with `Cannot find native binding` / `@rolldown/binding-*`, the install is
-half-written (npm optional-deps bug). Fix: `rm -rf node_modules package-lock.json && npm install`.
-
 ## Commands
 
 ```sh
@@ -30,8 +15,7 @@ uvx zizmor@latest .github/workflows/deploy.yml   # lint the deploy workflow
 ```
 
 There is no test suite and no typechecker installed (`astro check` would prompt to
-add `@astrojs/check`). `src/content/blog/math-test.md` is the regression check for LaTeX:
-after a build, `dist/blog/math-test/index.html` must contain 3 `class="katex"` spans.
+add `@astrojs/check`).
 
 ## Base path — the main trap
 
@@ -65,28 +49,6 @@ LaTeX comes from `remark-math` + `rehype-katex`, wired in `astro.config.mjs` und
 top of `src/styles/global.css`. Write `$inline$` and `$$display$$`. Custom macros go in
 `rehypeKatex({ macros: {...} })`.
 
-## Fonts
-
-Body font is Berkeley Mono Nerd Font, declared via Astro's local font provider in
-`astro.config.mjs` (cssVariable `--font-berkeley`, consumed by `body` in
-`src/styles/global.css`, preloaded by `<Font>` in `BaseHead.astro`).
-
-Sources are `.otf` in `~/BerkeleyMonoNerdFont/`; only the converted `.woff2` files live in
-`src/assets/fonts/`. To re-convert or add a style, subset with fonttools — no local tooling
-is installed or needed:
-
-```sh
-uvx --from "fonttools[woff]" pyftsubset in.otf \
-  --output-file=src/assets/fonts/out.woff2 --flavor=woff2 \
-  --layout-features='*' --no-hinting \
-  --unicodes='U+0000-00FF,U+2000-206F,U+2190-21FF,U+2200-22FF,U+25A0-25FF'
-```
-
-The subset range is deliberate. A straight woff2 compress of the Nerd Font is **1.4 MB per
-style** (5.6 MB for four); the latin range above is 22 KB per style. The dropped weight is
-almost entirely Nerd/Font-Awesome icon glyphs (`U+E000-E0C8`, `U+F000-F2FF`). If a post ever
-needs one of those, widen `--unicodes` rather than shipping the unsubsetted font.
-
 ## Deploy
 
 `.github/workflows/deploy.yml` builds with `withastro/action` on push to `main`, then
@@ -105,5 +67,4 @@ unmodified starter content.
 
 ## Version control
 
-This repo uses **jj** (`.jj/`), not git — there is no `.git` directory and no remote
-configured yet. Git commands will fail.
+This repo uses **jj** (`.jj/`), not git — there is no `.git` directory: Git commands will fail.
