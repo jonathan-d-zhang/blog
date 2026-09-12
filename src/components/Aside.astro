@@ -1,0 +1,39 @@
+---
+interface Props {
+	type?: 'info' | 'warning';
+	title?: string;
+}
+const { type = 'info', title } = Astro.props;
+---
+
+<aside data-type={type}>
+	{title && <p class="aside-title">{title}</p>}
+	<slot />
+</aside>
+
+<style>
+	aside {
+		border-left: 4px solid var(--aside-accent);
+		background: var(--aside-bg);
+		padding: 0.5em 1em;
+		margin: 1.5em 0;
+	}
+	aside[data-type='info'] {
+		--aside-accent: var(--accent);
+		--aside-bg: rgba(var(--gray-light), 40%);
+	}
+	aside[data-type='warning'] {
+		--aside-accent: #b8860b;
+		--aside-bg: rgba(255, 214, 102, 20%);
+	}
+	.aside-title {
+		font-weight: bold;
+		color: var(--aside-accent);
+	}
+	aside :global(> :first-child) {
+		margin-top: 0;
+	}
+	aside :global(> :last-child) {
+		margin-bottom: 0;
+	}
+</style>
